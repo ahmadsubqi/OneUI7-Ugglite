@@ -585,6 +585,7 @@ def main():
             if make_value(key) != value:
                 failures.append(f"unexpected or missing {key} in BoardConfig")
                 print(f"FAIL {key}: expected {value!r}, got {make_value(key)!r}")
+        fstab_normalized = " ".join(fstab.split())
         for marker in [
             "/dev/block/by-name/oem /metadata",
             "/dev/block/by-name/userdata /data",
@@ -593,7 +594,7 @@ def main():
             "fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized",
             "metadata_encryption=aes-256-xts",
         ]:
-            if marker not in fstab:
+            if marker not in fstab_normalized:
                 failures.append(f"missing critical fstab entry or encryption option: {marker}")
                 print(f"FAIL fstab marker: {marker}")
         print("PASS critical boot/recovery/metadata/userdata and encryption entries present")

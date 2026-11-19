@@ -45,6 +45,14 @@ FRAGMENTS=(
   vendor/xiaomi/msm8937/common.config
   vendor/xiaomi/msm8937/mi8937.config
 )
+# Match optional fragments from the upstream common/device BoardConfig.
+# Both options default off, matching the currently selected product config.
+if [[ "${PRODUCT_SET_DEBUGFS_RESTRICTIONS:-false}" == "true" ]]; then
+  FRAGMENTS+=(vendor/debugfs.config)
+fi
+if [[ "${MI8937_CAM_USE_LATEST_CAMERA_STACK:-false}" == "true" ]]; then
+  FRAGMENTS+=(vendor/xiaomi/msm8937/optional/latest-camera-stack.config)
+fi
 for fragment in "${FRAGMENTS[@]}"; do
   [[ -f "$CONFIG_ROOT/$fragment" ]] || fail "Missing required kernel config fragment: $fragment"
 done

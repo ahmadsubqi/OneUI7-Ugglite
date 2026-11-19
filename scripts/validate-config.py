@@ -109,7 +109,7 @@ except OSError as exc:
 
 require("self-hosted" in workflow and "android-build" in workflow,
         "full build must be restricted to the android-build self-hosted runner")
-require("ubuntu-latest" in kernel_workflow and "workflow_dispatch" in kernel_workflow,
+require("ubuntu-22.04" in kernel_workflow and "workflow_dispatch" in kernel_workflow,
         "kernel-only workflow must be runnable on free GitHub-hosted runners")
 require("repo sync -c --depth=1" in kernel_workflow and "JOBS=2" in kernel_workflow,
         "kernel-only workflow must shallow-sync sources and use conservative parallelism")

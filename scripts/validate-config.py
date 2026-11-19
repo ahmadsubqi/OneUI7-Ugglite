@@ -69,6 +69,8 @@ for needle, label in [
     ("mka bacon", "ROM build command"),
     ("vendor/xiaomi/msm8937/mi8937.config", "device-specific kernel config fragment"),
     ("vendor/feature/no-camera-stack.config", "recovery kernel config fragment"),
+    ("AUDIO_PATCH=", "audio HAL compatibility patch integration"),
+    ('git -C "$AUDIO_HAL_ROOT" apply', "audio HAL patch application"),
 ]:
     require(needle in build, f"build script is missing {label}")
 
@@ -103,6 +105,8 @@ require("python3 scripts/validate-upstream-files.py" in validation_workflow,
         "lightweight workflow must run critical upstream source-file checks")
 require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite.dts" in upstream_files_validator and "msm8937-legacy.config" in upstream_files_validator and "cirrus_playback.c" in upstream_files_validator,
         "upstream file validator must check ugglite and the known audio HAL issue")
+require("AUDIO_PATCH=" in build and 'git -C "$AUDIO_HAL_ROOT" apply' in build,
+        "build script must apply the audio HAL compatibility patch")
 require("void *arg __unused" in audio_patch and "spkr_calibration_thread" in audio_patch,
         "audio HAL Clang compatibility patch is missing or incomplete")
 require(audio_patch_path.is_file(), "audio HAL compatibility patch file is missing")

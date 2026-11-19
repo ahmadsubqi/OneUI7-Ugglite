@@ -169,6 +169,12 @@ CHECKS = [
         ["CameraModuleConfig"],
     ),
     (
+        "Mi-Thorium/proprietary_vendor_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "Mi8937-vendor.mk",
+        ["overlayfs/ugglite/camera/camera_config.xml:", "ugglite_libmmcamera_s5k5e8_f5e8ybf_d6"],
+    ),
+    (
         "Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-4.19",
         "a15_qpr2/master",
         "mithorium-common-4.19-vendor.mk",

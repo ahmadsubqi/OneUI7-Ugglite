@@ -33,3 +33,6 @@ Use public device/kernel sources only as research references. Verify repository 
 5. Build and test incrementally on a physical device.
 
 See [SOURCE-PLAN.md](docs/SOURCE-PLAN.md).
+
+
+A separate free GitHub-hosted kernel/DTB workflow is available at `.github/workflows/kernel-build-ugglite.yml`. It is intended to test the kernel build independently; it does not build the Android system image or a flashable ROM. The full Android build still requires a larger Linux x86_64 runner.

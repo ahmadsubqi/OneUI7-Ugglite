@@ -65,7 +65,7 @@ CHECKS = [
         "Mi-Thorium/kernel_msm-4.19",
         "mithorium/a13/master",
         "arch/arm64/configs/vendor/msm8937-perf_defconfig",
-        ["CONFIG_ARCH_MSM8937=y"],
+        ["CONFIG_ARCH_MSM8937=y", "CONFIG_CFG80211=y", "CONFIG_WCNSS_CORE=y", "CONFIG_WCNSS_CORE_PRONTO=y", "CONFIG_SND=y", "CONFIG_SND_SOC=y", "CONFIG_MSMB_CAMERA=y", "CONFIG_MSMB_JPEG=y", "CONFIG_MSM_FD=y"],
     ),
     (
         "Mi-Thorium/kernel_msm-4.19",

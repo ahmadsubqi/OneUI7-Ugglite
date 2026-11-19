@@ -38,9 +38,9 @@ Standard GitHub-hosted runners are not suitable: their standard Linux runner has
 
 Full build workflow: `.github/workflows/build-android15.yml` (self-hosted runner only).
 
-Lightweight validation workflow: `.github/workflows/validate-config.yml` (GitHub-hosted runner; checks Bash syntax and local manifest/configuration only, not Android compilation).
+Lightweight validation workflow: `.github/workflows/validate-config.yml` (GitHub-hosted runner; checks Bash syntax, local manifest/configuration, and existence of Mi-Thorium Git branch refs. It does not sync the Android source tree or compile Android).
 
-Validation script: `scripts/validate-config.py`
+Validation scripts: `scripts/validate-config.py` and `scripts/validate-refs.py`
 
 Build script: `scripts/build-android15.sh`
 

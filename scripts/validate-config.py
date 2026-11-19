@@ -66,6 +66,8 @@ for needle, label in [
     ("mv \"$KERNEL_SYNC_ROOT\" \"$KERNEL_ROOT\"", "kernel checkout move into expected source path"),
     ("repo manifest -r", "pinned manifest generation"),
     ("mka bacon", "ROM build command"),
+    ("vendor/xiaomi/msm8937/mi8937.config", "device-specific kernel config fragment"),
+    ("vendor/feature/no-camera-stack.config", "recovery kernel config fragment"),
 ]:
     require(needle in build, f"build script is missing {label}")
 
@@ -97,7 +99,7 @@ require("python3 scripts/validate-refs.py" in validation_workflow,
         "lightweight workflow must run upstream branch-reference checks")
 require("python3 scripts/validate-upstream-files.py" in validation_workflow,
         "lightweight workflow must run critical upstream source-file checks")
-require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite.dts" in upstream_files_validator,
+require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite.dts" in upstream_files_validator and "msm8937-legacy.config" in upstream_files_validator,
         "upstream file validator must check the ugglite product and kernel DTS")
 require('"ls-remote"' in refs_validator and '"--heads"' in refs_validator,
         "upstream reference validator must check remote Git refs")

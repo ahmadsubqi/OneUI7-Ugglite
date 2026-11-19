@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 manifest_path = ROOT / "manifests/mi-thorium-lineage-22.2.xml"
 build_path = ROOT / "scripts/build-android15.sh"
 workflow_path = ROOT / ".github/workflows/build-android15.yml"
+validation_workflow_path = ROOT / ".github/workflows/validate-config.yml"
+refs_validator_path = ROOT / "scripts/validate-refs.py"
 
 errors = []
 
@@ -68,6 +70,18 @@ require("self-hosted" in workflow and "android-build" in workflow,
 require("actions/upload-artifact@" in workflow,
         "build workflow must upload build artifacts")
 
+try:
+    validation_workflow = validation_workflow_path.read_text(encoding="utf-8")
+    refs_validator = refs_validator_path.read_text(encoding="utf-8")
+except OSError as exc:
+    print(f"FAIL: cannot read validation workflow or refs validator: {exc}")
+    sys.exit(1)
+
+require("python3 scripts/validate-refs.py" in validation_workflow,
+        "lightweight workflow must run upstream branch-reference checks")
+require("git ls-remote" in refs_validator,
+        "upstream reference validator must check remote Git refs")
+
 if errors:
     for error in errors:
         print(f"FAIL: {error}")
@@ -77,3 +91,4 @@ print(f"PASS: XML parsed; {len(projects)} manifest projects; no duplicate paths.
 print("PASS: required Mi8937 projects and remotes are present.")
 print("PASS: build script contains the expected Android/kernel build flow.")
 print("PASS: full build is gated behind the android-build self-hosted runner.")
+print("PASS: lightweight workflow includes upstream Git reference preflight.")

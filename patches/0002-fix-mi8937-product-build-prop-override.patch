@@ -2,7 +2,7 @@ diff --git a/lineage_Mi8937_4_19.mk b/lineage_Mi8937_4_19.mk
 index 0000000..0000000 100644
 --- a/lineage_Mi8937_4_19.mk
 +++ b/lineage_Mi8937_4_19.mk
-@@ -38,5 +38,5 @@ TARGET_VENDOR := Xiaomi
+@@ -43,5 +43,5 @@ TARGET_VENDOR := Xiaomi
  PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
  
  PRODUCT_BUILD_PROP_OVERRIDES += \

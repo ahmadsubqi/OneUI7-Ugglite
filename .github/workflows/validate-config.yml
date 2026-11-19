@@ -5,6 +5,7 @@ on:
     paths:
       - "manifests/**"
       - "scripts/**"
+      - "patches/**"
       - ".github/workflows/**"
   pull_request:
     paths:

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Check critical upstream source files and ugglite-specific markers without repo sync."""
+import json
 import sys
+import xml.etree.ElementTree as ET
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 BASE = "https://raw.githubusercontent.com"
 CHECKS = [

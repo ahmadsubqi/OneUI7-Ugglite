@@ -88,3 +88,10 @@ Before the Android baseline compile, `scripts/build-kernel-ugglite.sh`:
 - builds `Image.gz-dtb` and `ugglite.dtb` into `build-output/kernel/`.
 
 The recovery-only `no-wlan-driver.config` and `no-camera-stack.config` are not merged into the normal boot kernel. They belong to the recovery kernel configuration only.
+
+
+### Free GitHub-hosted kernel workflow
+
+A separate workflow, `.github/workflows/kernel-build-ugglite.yml`, syncs only the Mi-Thorium kernel manifest and attempts a kernel/DTB build on a free Ubuntu 22.04 GitHub-hosted runner using two parallel jobs. It is deliberately separate from the full Android build because the kernel-only source/build footprint is much smaller. It uploads `Image.gz-dtb`, `ugglite.dtb`, and the final kernel config when successful. This workflow is now configured, but its first run result is still pending; do not treat the artifacts as existing until GitHub Actions reports success.
+
+The full Android 15 source sync and ROM build remains gated behind the larger `android-build` self-hosted runner.

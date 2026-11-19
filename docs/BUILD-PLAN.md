@@ -55,8 +55,9 @@ The script:
 4. Initializes a separate kernel Repo client in a sibling directory OUTSIDE the Android source checkout.
 5. Syncs the kernel/DTS/techpack source, emits `pinned-kernel-manifest.xml`, and moves the complete kernel Repo checkout into the exact nested source path expected by BoardConfig.
 6. Checks kernel version, MSM8937 defconfig, ugglite DTS, device product makefile, ugglite overlay, and the required Mi8937 / MiThorium 4.19 vendor makefiles.
-7. Runs `lunch lineage_Mi8937_4_19-userdebug` and `mka bacon`.
-8. Requires a newly produced flashable ZIP, then copies ZIP/images and pinned manifests into build artifacts.
+7. Runs the standalone kernel prebuild to validate the merged config and compile `Image.gz-dtb` plus `ugglite.dtb`.
+8. Runs `lunch lineage_Mi8937_4_19-userdebug` and `mka bacon` for the Android 15 baseline.
+9. Requires a newly produced flashable ZIP, then copies ZIP/images, kernel artifacts, and pinned manifests into build artifacts.
 
 The source branches are resolved to immutable revisions by Repo during sync. The two `repo manifest -r` lockfiles are the reproducibility record for the actual source checkout used in that build.
 

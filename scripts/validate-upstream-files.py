@@ -28,7 +28,7 @@ CHECKS = [
         "Mi-Thorium/android_device_xiaomi_Mi8937",
         "a15_qpr2/master",
         "BoardConfig.mk",
-        ["ugglite", "BoardConfigCommon.mk"],
+        ["ugglite", "BoardConfigCommon.mk", "TARGET_USES_MITHORIUM_KERNEL := true"],
     ),
     (
         "Mi-Thorium/android_device_xiaomi_Mi8937",
@@ -84,6 +84,53 @@ CHECKS = [
         "default.xml",
         ['path="kernel"', 'revision="mithorium/a13/master"', "dts/mi8937/4.19/master"],
     ),
+    (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "mithorium.mk",
+        ["TARGET_USES_XIAOMI_MITHORIUM_COMMON_TREE := true"],
+    ),
+    # Kernel config fragments selected by BoardConfigCommon.mk and Mi8937/BoardConfig.mk.
+    *[
+        ("Mi-Thorium/kernel_msm-4.19", "mithorium/a13/master", f"arch/arm64/configs/{name}", [])
+        for name in [
+            "vendor/common.config",
+            "vendor/debugfs.config",
+            "vendor/msm8937-legacy.config",
+            "vendor/feature/android-12.config",
+            "vendor/feature/compat-vdso.config",
+            "vendor/feature/erofs.config",
+            "vendor/feature/exfat.config",
+            "vendor/feature/kprobes.config",
+            "vendor/feature/lmkd.config",
+            "vendor/feature/wireguard.config",
+            "vendor/feature/ntfs.config",
+            "vendor/feature/no-camera-stack.config",
+            "vendor/feature/no-wlan-driver.config",
+            "vendor/xiaomi/msm8937/common.config",
+            "vendor/xiaomi/msm8937/mi8937.config",
+        ]
+    ],
+    # Includes imported by the ugglite DTS across the two DTS repositories.
+    *[
+        ("Mi-Thorium/kernel_devicetree_xiaomi-msm8937", "dts/mi8937/4.19/master", name, [])
+        for name in [
+            "common/include/config.h",
+            "common/common.dtsi",
+            "common/fragments/delete-msm89x7-camera-sensor-mtp.dtsi",
+            "ulysse/common/common.dtsi",
+            "ulysse/ugglite/ugglite.dtsi",
+        ]
+    ],
+    *[
+        ("Mi-Thorium/kernel_devicetree_msm-4.19", "dts/master", name, [])
+        for name in [
+            "qcom/msm8917.dtsi",
+            "qcom/msm8917-audio.dtsi",
+            "qcom/msm8917-mtp.dtsi",
+            "qcom/msm8917-pmi8937.dtsi",
+        ]
+    ],
 ]
 
 def fetch_text(owner_repo, ref, path):

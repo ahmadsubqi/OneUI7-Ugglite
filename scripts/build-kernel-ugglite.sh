@@ -11,7 +11,6 @@ fail() { echo "ERROR: $*" >&2; exit 1; }
 pass() { echo "PASS: $*"; }
 
 [[ -d "$KERNEL_SOURCE" && -f "$KERNEL_SOURCE/Makefile" ]] || fail "Kernel source not found: $KERNEL_SOURCE"
-[[ -f "$ANDROID_ROOT/build/envsetup.sh" ]] || fail "Android source tree not found: $ANDROID_ROOT"
 [[ "$(uname -m)" == "x86_64" ]] || fail "Kernel build host must be Linux x86_64."
 command -v make >/dev/null || fail "make is missing."
 command -v python3 >/dev/null || fail "python3 is missing."
@@ -20,8 +19,14 @@ grep -q '^VERSION = 4$' "$KERNEL_SOURCE/Makefile" || fail "Kernel major version 
 grep -q '^PATCHLEVEL = 19$' "$KERNEL_SOURCE/Makefile" || fail "Kernel minor version is not 19."
 grep -q '^SUBLEVEL = 325$' "$KERNEL_SOURCE/Makefile" || fail "Expected kernel 4.19.325."
 
-CLANG_BIN="$(find "$ANDROID_ROOT/prebuilts/clang/host/linux-x86" -type f -name clang -perm -u+x 2>/dev/null | sort -V | tail -n 1)"
-[[ -n "$CLANG_BIN" && -x "$CLANG_BIN" ]] || fail "Android Clang prebuilt not found under prebuilts/clang/host/linux-x86."
+if [[ -z "${CLANG_BIN:-}" ]]; then
+  if [[ -d "$ANDROID_ROOT/prebuilts/clang/host/linux-x86" ]]; then
+    CLANG_BIN="$(find "$ANDROID_ROOT/prebuilts/clang/host/linux-x86" -name clang -executable 2>/dev/null | sort -V | tail -n 1)"
+  else
+    CLANG_BIN="$(command -v clang || true)"
+  fi
+fi
+[[ -n "$CLANG_BIN" && -x "$CLANG_BIN" ]] || fail "Clang not found. Set CLANG_BIN or install clang on PATH."
 export PATH="$(dirname "$CLANG_BIN"):$PATH"
 command -v clang >/dev/null || fail "clang is not executable after PATH setup."
 command -v ld.lld >/dev/null || fail "ld.lld is missing from the selected Clang toolchain."

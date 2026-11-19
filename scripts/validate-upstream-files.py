@@ -555,7 +555,11 @@ def main():
         treble = make_value("TREBLE_PARTITIONS")
         all_parts = make_value("ALL_PARTITIONS")
         expected_parts = set((ssi or "").split() + (treble or "").split())
-        declared_parts = set((all_parts or "").split())
+        all_tokens = set((all_parts or "").split())
+        if all_tokens == {"$(SSI_PARTITIONS)", "$(TREBLE_PARTITIONS)"}:
+            declared_parts = expected_parts
+        else:
+            declared_parts = all_tokens
         if not expected_parts or declared_parts != expected_parts:
             failures.append("BoardConfig partition groups are missing or inconsistent")
             print(f"FAIL partition groups: SSI={ssi!r}, TREBLE={treble!r}, ALL={all_parts!r}")

@@ -127,9 +127,13 @@ for config in \
     vendor/xiaomi/msm8937/mi8937.config; do
     [[ -f "$CONFIG_ROOT/$config" ]] || fail "Required kernel config fragment missing: $config"
 done
-[[ -f "$KERNEL_SOURCE/arch/arm64/boot/dts/xiaomi-msm8937/ugglite.dts" ]] || fail "ugglite DTS missing after kernel manifest sync."
-[[ -f "$KERNEL_SOURCE/arch/arm64/boot/dts/xiaomi-msm8937/ulysse/ugglite/ugglite.dtsi" ]] || fail "ugglite device DTS include missing."
-[[ -f "$KERNEL_SOURCE/arch/arm64/boot/dts/vendor-legacy/qcom/msm8917.dtsi" ]] || fail "MSM8917 vendor DTS include missing."
+# The kernel manifest checks out DTS repositories as sibling projects
+# under $KERNEL_ROOT/dts, not inside kernel/arch/arm64/boot/dts.
+DTS_XIAOMI_ROOT="$KERNEL_ROOT/dts/xiaomi-msm8937"
+DTS_VENDOR_ROOT="$KERNEL_ROOT/dts/vendor-legacy"
+[[ -f "$DTS_XIAOMI_ROOT/ugglite.dts" ]] || fail "ugglite DTS missing at kernel manifest project path: $DTS_XIAOMI_ROOT/ugglite.dts"
+[[ -f "$DTS_XIAOMI_ROOT/ulysse/ugglite/ugglite.dtsi" ]] || fail "ugglite device DTS include missing at kernel manifest project path."
+[[ -f "$DTS_VENDOR_ROOT/qcom/msm8917.dtsi" ]] || fail "MSM8917 vendor DTS include missing at kernel manifest project path."
 
 cd "$ANDROID_ROOT"
 [[ -f device/xiaomi/Mi8937/lineage_Mi8937_4_19.mk ]] || fail "Mi8937 4.19 product makefile missing."

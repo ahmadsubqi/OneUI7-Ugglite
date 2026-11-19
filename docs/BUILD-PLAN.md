@@ -77,3 +77,14 @@ This is a source-level compatibility fix based on the current upstream code. It 
 The workflow and scripts are prepared, but the build cannot start until an online self-hosted runner with the required resources is registered and labelled `android-build`. A public GitHub repository does not provide extra disk or RAM on standard hosted runners.
 
 No build has been claimed successful. No ROM has been flashed.
+
+
+## Kernel-only prebuild and config merge
+
+Before the Android baseline compile, `scripts/build-kernel-ugglite.sh`:
+- starts from `vendor/msm8937-perf_defconfig`;
+- merges the normal boot fragments selected by the common and Mi8937 BoardConfig files;
+- verifies Pronto WLAN/WCNSS, MSM8937 audio auto-config, both camera legacy stacks, and the ugglite machine config;
+- builds `Image.gz-dtb` and `ugglite.dtb` into `build-output/kernel/`.
+
+The recovery-only `no-wlan-driver.config` and `no-camera-stack.config` are not merged into the normal boot kernel. They belong to the recovery kernel configuration only.

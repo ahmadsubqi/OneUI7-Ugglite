@@ -112,3 +112,26 @@ Relevant source refs:
 - `ugglite.dts` blob: `fabcb53a14df7ae50ecf088a4e203b076756f04e`
 - `msm8917.dtsi` blob: `037033b80009a3114426670c11d0ae2378e3df95`
 - `msm8917-gpu.dtsi` blob: `aa7d410429abf4306624cb916c9b6f02d9a555d7`
+
+
+## 6. HIDL manifest cross-check
+
+The Android 15 common device `manifest.xml` declares:
+
+- `android.hardware.graphics.composer@2.1::IComposer/default`
+- `android.hardware.memtrack@1.0::IMemtrack/default`
+- `vendor.display.color@1.0::IDisplayColor/default`
+- `vendor.display.config@2.0::IDisplayConfig/default`
+- `vendor.display.postproc@1.0::IDisplayPostproc/default`
+
+The same base manifest does not declare graphics allocator or mapper. A separate optional `configs/manifest/q-display-stack.xml` declares allocator 2.0 and mapper 2.1 passthrough. This is a distinct configuration path and must not be combined casually with the default QTI mapper 2.0/3.0/4.0 product package path. The final product variables and generated manifest must be checked together to ensure only the intended HAL combination is installed and declared.
+
+The proprietary graphics package supplies `vendor.display.color@1.0-service` and an init rc that starts it as a HAL service. The presence of the init rc and manifest declaration still does not prove the service can load all dependencies or communicate with the display stack on the target device.
+
+## 7. Board-specific GPU Device Tree correction
+
+The correct ugglite board chain is:
+
+`ugglite.dts` → `qcom/msm8917.dtsi` → `msm8917-gpu.dtsi`.
+
+The ugglite board DTS has compatible strings `qcom,msm8917-mtp`, `qcom,msm8917`, `qcom,mtp`, and `xiaomi,ugglite`, and board ID `<8 0>`. The parent MSM8917 DTSI overrides the base GPU power table with speed-bin-specific tables, so the final maximum clock must be taken from the effective compiled DTB for the actual board, not copied from the unrelated MSM8937 GPU DTSI or from the generic MSM8917 base table.

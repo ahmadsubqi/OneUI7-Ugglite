@@ -32,3 +32,6 @@ jobs:
 
       - name: Check upstream Mi-Thorium branch references
         run: python3 scripts/validate-refs.py
+
+      - name: Check critical upstream source files
+        run: python3 scripts/validate-upstream-files.py

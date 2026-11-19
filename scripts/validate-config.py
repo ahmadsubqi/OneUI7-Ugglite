@@ -111,8 +111,8 @@ require("self-hosted" in workflow and "android-build" in workflow,
         "full build must be restricted to the android-build self-hosted runner")
 require("ubuntu-22.04" in kernel_workflow and "workflow_dispatch" in kernel_workflow,
         "kernel-only workflow must be runnable on free GitHub-hosted runners")
-require("repo sync -c --depth=1" in kernel_workflow and "JOBS=2" in kernel_workflow,
-        "kernel-only workflow must shallow-sync sources and use conservative parallelism")
+require("repo sync -c --no-clone-bundle -j2" in kernel_workflow and "JOBS=2" in kernel_workflow,
+        "kernel-only workflow must sync sources without unsupported options and use conservative parallelism")
 require("kernel-artifacts/*" in kernel_workflow and "actions/upload-artifact@" in kernel_workflow,
         "kernel-only workflow must upload kernel/DTB artifacts")
 require(kernel_workflow_path.is_file(), "kernel-only GitHub Actions workflow is missing")

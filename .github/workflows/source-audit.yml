@@ -1,0 +1,66 @@
+name: Source Audit
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/source-audit.yml"
+      - "docs/SOURCE-PLAN.md"
+      - "scripts/source-audit.sh"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Audit public source references
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Show runner and project metadata
+        run: |
+          echo "Project: ${GITHUB_REPOSITORY}"
+          echo "Ref: ${GITHUB_REF}"
+          echo "Runner: $(uname -a)"
+          git --version
+
+      - name: Audit candidate remotes (read-only)
+        shell: bash
+        run: |
+          set -u
+          mkdir -p audit
+          {
+            echo "# Source audit"
+            echo
+            echo "Date (UTC): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            echo "Project ref: ${GITHUB_REF}"
+            echo
+            for url in \
+              https://github.com/ancient-devices/device_xiaomi_ulysse.git \
+              https://github.com/xiaomi-ulysse/android_kernel_xiaomi_msm8937.git \
+              https://github.com/xiaomi-ulysse/twrp_device_xiaomi_ugglite.git
+            do
+              echo "## ${url}"
+              if git ls-remote --heads "${url}" 2>&1; then
+                echo
+              else
+                echo "REMOTE_CHECK_FAILED: verify URL, access, and repository availability."
+                echo
+              fi
+            done
+          } | tee audit/source-audit.md
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugglite-source-audit
+          path: audit/source-audit.md
+          if-no-files-found: error
+          retention-days: 14

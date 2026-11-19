@@ -85,6 +85,7 @@ No build has been claimed successful. No ROM has been flashed.
 Before the Android baseline compile, `scripts/build-kernel-ugglite.sh`:
 - starts from `vendor/msm8937-perf_defconfig`;
 - merges the normal boot fragments selected by the common and Mi8937 BoardConfig files;
+- keeps optional `vendor/debugfs.config` and `vendor/xiaomi/msm8937/optional/latest-camera-stack.config` disabled by default, matching current upstream product defaults; either can be enabled with `PRODUCT_SET_DEBUGFS_RESTRICTIONS=true` or `MI8937_CAM_USE_LATEST_CAMERA_STACK=true`;
 - verifies Pronto WLAN/WCNSS, MSM8937 audio auto-config, both camera legacy stacks, and the ugglite machine config;
 - builds `Image.gz-dtb` and `ugglite.dtb` into `build-output/kernel/`.
 

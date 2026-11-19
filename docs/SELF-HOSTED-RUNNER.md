@@ -64,6 +64,8 @@ Once the runner is online and shows the `android-build` label:
 
 The workflow uses a persistent source directory under the runner workspace so a later run can reuse the synced source tree. The first source sync and full build may take many hours.
 
+The kernel manifest is synchronized in a separate sibling directory, outside the Android source Repo checkout, and then moved into `kernel/xiaomi/mithorium-4.19`. Do not initialize the kernel Repo client from inside the Android source root: that would conflict with the Android Repo metadata.
+
 ## Expected artifacts
 
 A successful run uploads:

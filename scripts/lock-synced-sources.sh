@@ -40,4 +40,4 @@ if bad:
 print(f"PASS: {len(projects)} projects pinned to immutable commit SHAs.")
 PY
 
-sha256sum "$OUTPUT"
+sha256sum "$OUTPUT" | tee "$OUTPUT.sha256"

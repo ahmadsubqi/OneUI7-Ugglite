@@ -25,7 +25,7 @@ Verified files:
 - `arch/arm64/boot/dts/vendor/qcom/msm8937-gpu.dtsi` declares `qcom,kgsl-3d0` / `qcom,kgsl-3d`, the GPU register region, interrupt, clocks, bus scaling, IOMMU and power levels.
 - The DTS GPU power table contains a highest listed frequency of 450 MHz.
 
-The device-specific kernel config adds Xiaomi MSM8937 board support and the ugglite machine option. The GPU node is in the MSM8937 common DTSI; this audit has not yet proven which final ugglite DTB/DTBO is selected by the build.
+The device-specific kernel config adds Xiaomi MSM8937 board support and the ugglite machine option. More importantly, the actual ugglite board DTS is `ugglite.dts`, which includes `qcom/msm8917.dtsi`; that SoC DTSI includes `msm8917-gpu.dtsi`. Thus the MSM8917 GPU node is in the include chain for the ugglite board DTS. The final compiled DTB/DTBO selected by the ROM build still needs confirmation.
 
 ## 2. Proprietary graphics userspace
 
@@ -82,7 +82,7 @@ The device manifest also has a separate optional `q-display-stack.xml` declaring
 
 ## 5. Required validation before build/flash progression
 
-- Confirm the final DTB/DTBO includes the MSM8937 GPU node and correct clocks, regulator, bus and IOMMU links for ugglite.
+- Confirm the compiled ugglite DTB/DTBO retains the MSM8917 GPU node and the correct clocks, regulator, bus and IOMMU links for this board.
 - Confirm the kernel config used by the actual product has `CONFIG_QCOM_KGSL=y` after all config fragments are merged.
 - Record hashes and ELF metadata for all selected Adreno/graphics blobs from the exact extraction source.
 - Inspect every shared-library dependency and 32-/64-bit variant; resolve missing libraries rather than relying on `check_elf_files: false`.
@@ -101,3 +101,14 @@ The device manifest also has a separate optional `q-display-stack.xml` declaring
 - Flashable One UI 7 image: **does not exist yet**.
 
 No flashing, repartitioning, firmware writing, or device-side operations were performed during this audit. The physical handset is unavailable for runtime testing.
+
+
+## Correction / board-specific Device Tree confirmation (2026-11-19)
+
+The first pass inspected `msm8937-gpu.dtsi`, but that is not the correct GPU include for the ugglite board. The board DTS in the pinned Xiaomi MSM8937 DTS repository is `ugglite.dts`, which includes `qcom/msm8917.dtsi`; the latter explicitly includes `msm8917-gpu.dtsi`. The ugglite DTS also identifies the board with `xiaomi,ugglite` and a Qualcomm MSM8917 MTP compatible string. The audit therefore corrects the GPU include path to MSM8917. The final compiled DTB/DTBO still must be checked from the build output before flashing.
+
+Relevant source refs:
+- Device tree repo commit: `eca0b0dadbac0713824c3b42a1238c4e983982ae`
+- `ugglite.dts` blob: `fabcb53a14df7ae50ecf088a4e203b076756f04e`
+- `msm8917.dtsi` blob: `037033b80009a3114426670c11d0ae2378e3df95`
+- `msm8917-gpu.dtsi` blob: `aa7d410429abf4306624cb916c9b6f02d9a555d7`

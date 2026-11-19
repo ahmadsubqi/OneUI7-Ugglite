@@ -143,6 +143,18 @@ CHECKS = [
             "qcom/msm8917-pmi8937.dtsi",
         ]
     ],
+    (
+        "Mi-Thorium/android_device_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "lineage_Mi8937_4_19.mk",
+        ['BuildDesc="land-user 6.0.1 MMB29M V10.2.2.0.MALMIXM release-keys"', "BuildFingerprint=Xiaomi/land/land:6.0.1"],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "mithorium.mk",
+        ["media_codecs_8956.xml::$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_8956.xml"],
+    ),
 ]
 
 def fetch_text(owner_repo, ref, path):

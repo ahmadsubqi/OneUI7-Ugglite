@@ -71,6 +71,8 @@ echo "=== Source lockfiles generated ==="
 ls -lh "$ANDROID_ROOT/pinned-android-manifest.xml" "$ANDROID_ROOT/pinned-kernel-manifest.xml"
 
 echo "=== Starting Android 15 baseline build ==="
+mkdir -p "$PROJECT_ROOT/build-output"
+rm -f "$PROJECT_ROOT/build-output"/*.zip
 source build/envsetup.sh
 lunch lineage_Mi8937_4_19-userdebug
 mka bacon -j"$JOBS"

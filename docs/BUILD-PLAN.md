@@ -44,14 +44,14 @@ Full build workflow: `.github/workflows/build-android15.yml` (self-hosted runner
 
 Lightweight validation workflow: `.github/workflows/validate-config.yml` (GitHub-hosted runner; checks Bash syntax, local manifest/configuration, and existence of Mi-Thorium Git branch refs. It does not sync the Android source tree or compile Android).
 
-Validation scripts: `scripts/validate-config.py` and `scripts/validate-refs.py`
+Validation scripts: `scripts/validate-config.py`, `scripts/validate-refs.py`, and `scripts/validate-upstream-files.py`
 
 Build script: `scripts/build-android15.sh`
 
 The script:
 1. Checks Linux x86_64, Ubuntu, RAM and free disk.
 2. Initializes LineageOS 22.2 and installs the project's Mi-Thorium local manifest.
-3. Syncs the Android source and emits `pinned-android-manifest.xml` using `repo manifest -r`.
+3. Syncs the Android source, applies the checked-in Mi-Thorium audio HAL Clang compatibility patch, and emits `pinned-android-manifest.xml` using `repo manifest -r`.
 4. Initializes a separate kernel Repo client in a sibling directory OUTSIDE the Android source checkout.
 5. Syncs the kernel/DTS/techpack source, emits `pinned-kernel-manifest.xml`, and moves the complete kernel Repo checkout into the exact nested source path expected by BoardConfig.
 6. Checks kernel version, MSM8937 defconfig, ugglite DTS, device product makefile, ugglite overlay, and the required Mi8937 / MiThorium 4.19 vendor makefiles.
@@ -59,6 +59,18 @@ The script:
 8. Requires a newly produced flashable ZIP, then copies ZIP/images and pinned manifests into build artifacts.
 
 The source branches are resolved to immutable revisions by Repo during sync. The two `repo manifest -r` lockfiles are the reproducibility record for the actual source checkout used in that build.
+
+## Known Android 15 audio HAL compatibility patch
+
+The selected Mi-Thorium audio HAL branch currently resolves to commit prefix `a3ff9d54`. Its `cirrus_playback.c` and `spkr_protection.c` thread definitions contain unnamed `void*` parameters. That is a C23 extension and can be rejected by Clang when compiling as GNU99 with `-Werror`.
+
+A small compatibility patch is stored at:
+
+`patches/0001-audio-extn-name-unused-pthread-parameters.patch`
+
+After Android source sync, the build script checks and applies this patch to the audio HAL Repo checkout. It skips the patch if it is already applied and fails early if the patch no longer applies cleanly. The upstream preflight checks the affected source signatures so a future upstream change is visible.
+
+This is a source-level compatibility fix based on the current upstream code. It has not yet been validated by a full Android compilation.
 
 ## Current gate
 

@@ -22,7 +22,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64, android-build]
     timeout-minutes: 360
     env:
-      ANDROID_ROOT: ${{ runner.workspace }}/android15/OneUI7-Ugglite/android
+      ANDROID_ROOT: ${{ github.workspace }}/android15/OneUI7-Ugglite/android
       JOBS: ${{ inputs.jobs }}
     steps:
       - name: Checkout build configuration

@@ -11,6 +11,7 @@ workflow_path = ROOT / ".github/workflows/build-android15.yml"
 validation_workflow_path = ROOT / ".github/workflows/validate-config.yml"
 refs_validator_path = ROOT / "scripts/validate-refs.py"
 upstream_files_validator_path = ROOT / "scripts/validate-upstream-files.py"
+audio_patch_path = ROOT / "patches/0001-audio-extn-name-unused-pthread-parameters.patch"
 
 errors = []
 
@@ -91,6 +92,7 @@ try:
     validation_workflow = validation_workflow_path.read_text(encoding="utf-8")
     refs_validator = refs_validator_path.read_text(encoding="utf-8")
     upstream_files_validator = upstream_files_validator_path.read_text(encoding="utf-8")
+    audio_patch = audio_patch_path.read_text(encoding="utf-8")
 except OSError as exc:
     print(f"FAIL: cannot read validation workflow or refs validator: {exc}")
     sys.exit(1)
@@ -99,6 +101,11 @@ require("python3 scripts/validate-refs.py" in validation_workflow,
         "lightweight workflow must run upstream branch-reference checks")
 require("python3 scripts/validate-upstream-files.py" in validation_workflow,
         "lightweight workflow must run critical upstream source-file checks")
+require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite.dts" in upstream_files_validator and "msm8937-legacy.config" in upstream_files_validator and "cirrus_playback.c" in upstream_files_validator,
+        "upstream file validator must check ugglite and the known audio HAL issue")
+require("void *arg __unused" in audio_patch and "spkr_calibration_thread" in audio_patch,
+        "audio HAL Clang compatibility patch is missing or incomplete")
+require(audio_patch_path.is_file(), "audio HAL compatibility patch file is missing")
 require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite.dts" in upstream_files_validator and "msm8937-legacy.config" in upstream_files_validator,
         "upstream file validator must check the ugglite product and kernel DTS")
 require('"ls-remote"' in refs_validator and '"--heads"' in refs_validator,

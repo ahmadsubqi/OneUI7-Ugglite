@@ -41,6 +41,7 @@ jobs:
           name: ugglite-android15-baseline
           path: |
             build-output/*
+            build-output/kernel/*
             build-logs/*
           if-no-files-found: error
           compression-level: 0

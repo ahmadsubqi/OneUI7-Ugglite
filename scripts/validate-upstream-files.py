@@ -548,7 +548,7 @@ def main():
             "rootdir/etc/fstab_4_19.qcom",
         )
         def make_value(name):
-            match = re.search(rf"^\\s*{re.escape(name)}\\s*:=\\s*(.+?)\\s*$", board, re.M)
+            match = re.search(rf"^\s*{re.escape(name)}\s*:=\s*(.+?)\s*$", board, re.M)
             return match.group(1).strip() if match else None
 
         ssi = make_value("SSI_PARTITIONS")

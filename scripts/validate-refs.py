@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
-"""Check that Mi-Thorium branch refs in both Repo manifests exist on GitHub."""
+"""Check Android local-manifest refs and every project ref in the kernel manifest."""
 from pathlib import Path
 import subprocess
 import sys
+import urllib.request
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 ANDROID_MANIFEST = ROOT / "manifests/mi-thorium-lineage-22.2.xml"
 KERNEL_MANIFEST_URL = "https://github.com/Mi-Thorium/kernel_manifest.git"
 KERNEL_MANIFEST_REF = "mithorium-4.19"
+KERNEL_MANIFEST_RAW = (
+    "https://raw.githubusercontent.com/Mi-Thorium/kernel_manifest/"
+    "mithorium-4.19/default.xml"
+)
 
 def check_ref(url, branch):
     ref = f"refs/heads/{branch}"
@@ -50,10 +55,10 @@ def main():
         ok, detail = check_ref(url, branch)
         checked += 1
         if ok:
-            print(f"PASS {repo_name} @ {branch} ({detail[:12]})")
+            print(f"PASS Android {repo_name} @ {branch} ({detail[:12]})")
         else:
-            failures.append(f"{repo_name} @ {branch}: {detail}")
-            print(f"FAIL {repo_name} @ {branch}: {detail}")
+            failures.append(f"Android {repo_name} @ {branch}: {detail}")
+            print(f"FAIL Android {repo_name} @ {branch}: {detail}")
 
     ok, detail = check_ref(KERNEL_MANIFEST_URL, KERNEL_MANIFEST_REF)
     checked += 1
@@ -63,10 +68,48 @@ def main():
         failures.append(f"kernel_manifest @ {KERNEL_MANIFEST_REF}: {detail}")
         print(f"FAIL kernel_manifest @ {KERNEL_MANIFEST_REF}: {detail}")
 
+    # Verify all individual project revisions declared by the kernel manifest,
+    # not merely that the manifest branch itself exists.
+    try:
+        with urllib.request.urlopen(KERNEL_MANIFEST_RAW, timeout=45) as response:
+            kernel_xml = ET.fromstring(response.read())
+    except Exception as exc:
+        failures.append(f"cannot download/parse kernel manifest XML: {exc}")
+        print(f"FAIL kernel manifest XML: {exc}")
+        kernel_xml = None
+
+    if kernel_xml is not None:
+        kernel_remotes = {
+            r.get("name"): r.get("fetch", "").rstrip("/")
+            for r in kernel_xml.findall("remote")
+        }
+        default = kernel_xml.find("default")
+        default_remote = default.get("remote") if default is not None else None
+        default_revision = default.get("revision") if default is not None else None
+        for project in kernel_xml.findall("project"):
+            remote_name = project.get("remote") or default_remote
+            repo_name = project.get("name")
+            branch = project.get("revision") or default_revision
+            if not repo_name or not branch or remote_name not in kernel_remotes:
+                failures.append(
+                    f"kernel project {project.get('path')}: missing name, revision, or remote"
+                )
+                continue
+            branch = branch.removeprefix("refs/heads/")
+            url = f"{kernel_remotes[remote_name]}/{repo_name}.git"
+            ok, detail = check_ref(url, branch)
+            checked += 1
+            label = f"kernel {repo_name} @ {branch}"
+            if ok:
+                print(f"PASS {label} ({detail[:12]})")
+            else:
+                failures.append(f"{label}: {detail}")
+                print(f"FAIL {label}: {detail}")
+
     if failures:
         print(f"\nFAIL: {len(failures)} of {checked} checked refs failed.")
         return 1
-    print(f"\nPASS: all {checked} checked Mi-Thorium refs exist.")
+    print(f"\nPASS: all {checked} checked Android and kernel project refs exist.")
     print("Note: this checks Git branch existence, not full Repo sync or build compatibility.")
     return 0
 

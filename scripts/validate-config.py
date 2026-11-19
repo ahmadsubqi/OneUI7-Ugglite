@@ -79,7 +79,7 @@ except OSError as exc:
 
 require("python3 scripts/validate-refs.py" in validation_workflow,
         "lightweight workflow must run upstream branch-reference checks")
-require("git ls-remote" in refs_validator,
+require('"ls-remote"' in refs_validator and '"--heads"' in refs_validator,
         "upstream reference validator must check remote Git refs")
 
 if errors:

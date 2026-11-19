@@ -155,6 +155,18 @@ CHECKS = [
         "mithorium.mk",
         ["media_codecs_8956.xml::$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_8956.xml"],
     ),
+    (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "media/msm8937/media_codecs_8956.xml",
+        ["<MediaCodecs"],
+    ),
+    (
+        "Mi-Thorium/proprietary_vendor_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "proprietary/vendor/etc/overlayfs/ugglite/camera/camera_config.xml",
+        ["CameraModuleConfig"],
+    ),
 ]
 
 def fetch_text(owner_repo, ref, path):

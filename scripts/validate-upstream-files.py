@@ -124,6 +124,18 @@ CHECKS = [
             "vendor/xiaomi/msm8937/mi8937.config",
         ]
     ],
+    (
+        "Mi-Thorium/kernel_devicetree_xiaomi-msm8937",
+        "dts/mi8937/4.19/master",
+        "ulysse/ugglite/ugglite.dtsi",
+        ['#include "camera.dtsi"', '#include "battery_usb.dtsi"'],
+    ),
+    (
+        "Mi-Thorium/kernel_devicetree_xiaomi-msm8937",
+        "dts/mi8937/4.19/master",
+        "ulysse/ugglite/camera.dtsi",
+        ["qcom,eeprom@", "qcom,camera@0", "qcom,camera@1"],
+    ),
     # Includes imported by the ugglite DTS across the two DTS repositories.
     *[
         ("Mi-Thorium/kernel_devicetree_xiaomi-msm8937", "dts/mi8937/4.19/master", name, [])

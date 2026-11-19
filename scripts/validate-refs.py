@@ -10,6 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 ANDROID_MANIFEST = ROOT / "manifests/mi-thorium-lineage-22.2.xml"
 KERNEL_MANIFEST_URL = "https://github.com/Mi-Thorium/kernel_manifest.git"
 KERNEL_MANIFEST_REF = "mithorium-4.19"
+LINEAGE_MANIFEST_URL = "https://github.com/LineageOS/android.git"
+LINEAGE_MANIFEST_REF = "lineage-22.2"
 KERNEL_MANIFEST_RAW = (
     "https://raw.githubusercontent.com/Mi-Thorium/kernel_manifest/"
     "mithorium-4.19/default.xml"
@@ -38,6 +40,22 @@ def main():
                for r in root.findall("remote")}
     checked = 0
     failures = []
+
+    # Validate the Android manifest branch itself and the non-Mi-Thorium
+    # LineageOS HAL repositories explicitly referenced by the local manifest.
+    for url, branch, label in [
+        (LINEAGE_MANIFEST_URL, LINEAGE_MANIFEST_REF, "LineageOS android manifest"),
+        ("https://github.com/LineageOS/android_vendor_qcom_opensource_display-commonsys-intf.git", "lineage-22.2", "LineageOS display commonsys interface"),
+        ("https://github.com/LineageOS/android_hardware_qcom_media.git", "lineage-21.0-caf-msm8953", "LineageOS CAF media HAL"),
+        ("https://github.com/LineageOS/android_hardware_qcom_display.git", "lineage-21.0-caf-msm8953", "LineageOS CAF display HAL"),
+    ]:
+        ok, detail = check_ref(url, branch)
+        checked += 1
+        if ok:
+            print(f"PASS {label} @ {branch} ({detail[:12]})")
+        else:
+            failures.append(f"{label} @ {branch}: {detail}")
+            print(f"FAIL {label} @ {branch}: {detail}")
 
     for project in root.findall("project"):
         remote_name = project.get("remote")

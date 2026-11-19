@@ -55,7 +55,7 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/kernel-src"
           cd "$GITHUB_WORKSPACE/kernel-src"
           repo init -u https://github.com/Mi-Thorium/kernel_manifest -b mithorium-4.19 --no-clone-bundle
-          repo sync -c --depth=1 --no-clone-bundle -j2
+          repo sync -c --no-clone-bundle -j2
 
       - name: Configure and build ugglite kernel and DTB
         shell: bash

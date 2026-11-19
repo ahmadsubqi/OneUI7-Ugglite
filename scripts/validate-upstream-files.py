@@ -507,6 +507,32 @@ def main():
             print(f"FAIL {label}: missing markers {missing}")
         else:
             print(f"PASS {label} ({len(content)} chars; {len(markers)} markers)")
+    # Cross-check upstream device dependencies against the local Repo manifest.
+    try:
+        manifest_path = Path(__file__).resolve().parents[1] / "manifests/mi-thorium-lineage-22.2.xml"
+        manifest_root = ET.parse(manifest_path).getroot()
+        local_projects = {
+            (project.get("name"), project.get("path"))
+            for project in manifest_root.findall("project")
+        }
+        dependency_data = json.loads(fetch_text(
+            "Mi-Thorium/android_device_xiaomi_Mi8937",
+            "a15_qpr2/master",
+            "lineage.dependencies",
+        ))
+        for dependency in dependency_data:
+            expected = (dependency.get("repository"), dependency.get("target_path"))
+            if expected not in local_projects:
+                failures.append(
+                    f"device dependency missing from local manifest: {expected[0]} -> {expected[1]}"
+                )
+                print(f"FAIL dependency {expected[0]} -> {expected[1]}")
+            else:
+                print(f"PASS dependency {expected[0]} -> {expected[1]}")
+    except (OSError, ET.ParseError, ValueError, urllib.error.URLError) as exc:
+        failures.append(f"dependency-to-manifest consistency check failed: {exc}")
+        print(f"FAIL dependency-to-manifest consistency: {exc}")
+
     if failures:
         print(f"\nFAIL: {len(failures)} of {len(CHECKS)} upstream file checks failed.")
         return 1

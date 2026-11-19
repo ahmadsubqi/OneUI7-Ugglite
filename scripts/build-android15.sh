@@ -48,6 +48,22 @@ install -m 0644 "$PROJECT_ROOT/manifests/mi-thorium-lineage-22.2.xml" .repo/loca
 
 echo "=== Syncing LineageOS 22.2 + Mi-Thorium device/vendor/HAL sources ==="
 repo sync -c --no-clone-bundle -j"$JOBS"
+
+echo "=== Applying the known Mi-Thorium audio HAL Clang compatibility patch ==="
+AUDIO_HAL_ROOT="$ANDROID_ROOT/hardware/mithorium/audio/LA.UM.9.6.4.r2-04300-89xx.QSSI13r2.0/hal"
+AUDIO_PATCH="$PROJECT_ROOT/patches/0001-audio-extn-name-unused-pthread-parameters.patch"
+[[ -d "$AUDIO_HAL_ROOT/.git" || -f "$AUDIO_HAL_ROOT/.git" ]] || fail "Mi-Thorium audio HAL Repo checkout missing: $AUDIO_HAL_ROOT"
+[[ -f "$AUDIO_HAL_ROOT/hal/audio_extn/cirrus_playback.c" ]] || fail "Audio HAL Cirrus source missing."
+if git -C "$AUDIO_HAL_ROOT" apply --reverse --check "$AUDIO_PATCH" >/dev/null 2>&1; then
+    echo "Audio HAL compatibility patch is already applied."
+else
+    git -C "$AUDIO_HAL_ROOT" apply --check "$AUDIO_PATCH" || fail "Audio HAL compatibility patch does not apply cleanly; inspect upstream changes."
+    git -C "$AUDIO_HAL_ROOT" apply "$AUDIO_PATCH"
+    echo "Audio HAL compatibility patch applied."
+fi
+grep -q 'audio_extn_cirrus_calibration_thread(void *arg __unused)' "$AUDIO_HAL_ROOT/hal/audio_extn/cirrus_playback.c" || fail "Audio HAL calibration-thread fix not present."
+grep -q 'spkr_calibration_thread(void *arg __unused)' "$AUDIO_HAL_ROOT/hal/audio_extn/spkr_protection.c" || fail "Audio HAL speaker-thread fix not present."
+
 repo manifest -r -o "$ANDROID_ROOT/pinned-android-manifest.xml"
 
 echo "=== Preparing separate kernel Repo client OUTSIDE Android source tree ==="

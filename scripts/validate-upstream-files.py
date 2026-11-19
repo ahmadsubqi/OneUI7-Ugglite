@@ -426,6 +426,29 @@ CHECKS = [
         ],
     ),
     (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "framework_compatibility_matrix.xml",
+        [
+            '<compatibility-matrix version="2.0" type="framework">',
+            "vendor.qti.hardware.perf",
+            "vendor.display.color",
+            "vendor.display.postproc",
+            "vendor.qti.hardware.qseecom",
+            "vendor.qti.hardware.bluetooth_audio",
+        ],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "framework_manifest.xml",
+        [
+            '<manifest version="1.0" type="framework">',
+            "vendor.qti.hardware.radio.atcmdfwd",
+            "vendor.qti.hardware.qccsyshal",
+        ],
+    ),
+    (
         "Mi-Thorium/android_device_xiaomi_Mi8937",
         "a15_qpr2/master",
         "device.mk",

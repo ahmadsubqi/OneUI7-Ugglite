@@ -606,6 +606,45 @@ def main():
         failures.append(f"partition-layout audit fetch failed: {exc}")
         print(f"FAIL partition-layout audit: {exc}")
 
+    # Verify the separate kernel Repo manifest's linkfile map is deterministic.
+    try:
+        kernel_manifest = ET.fromstring(fetch_text(
+            "Mi-Thorium/kernel_manifest",
+            "mithorium-4.19",
+            "default.xml",
+        ))
+        link_destinations = [
+            link.get("dest")
+            for project in kernel_manifest.findall("project")
+            for link in project.findall("linkfile")
+        ]
+        required_destinations = {
+            "drivers",
+            "kernel/arch/arm64/boot/dts/vendor-legacy",
+            "kernel/arch/arm64/boot/dts/xiaomi-msm8937",
+            "kernel/techpack/xiaomi-msm8937",
+            "kernel/techpack/audio-legacy",
+            "kernel/techpack/camera-legacy",
+            "kernel/techpack/camera-legacy-m",
+            "kernel/drivers/staging/prima",
+        }
+        duplicate_destinations = sorted({
+            destination for destination in link_destinations
+            if link_destinations.count(destination) > 1
+        })
+        missing_destinations = sorted(required_destinations - set(link_destinations))
+        if duplicate_destinations:
+            failures.append(f"kernel manifest has duplicate linkfile destinations: {duplicate_destinations}")
+            print(f"FAIL kernel linkfile duplicates: {duplicate_destinations}")
+        if missing_destinations:
+            failures.append(f"kernel manifest is missing required linkfile destinations: {missing_destinations}")
+            print(f"FAIL kernel linkfile destinations missing: {missing_destinations}")
+        if not duplicate_destinations and not missing_destinations:
+            print(f"PASS kernel Repo linkfile map: {len(link_destinations)} unique destinations")
+    except (ET.ParseError, urllib.error.URLError, OSError) as exc:
+        failures.append(f"kernel manifest linkfile audit failed: {exc}")
+        print(f"FAIL kernel manifest linkfile audit: {exc}")
+
     if failures:
         print(f"\nFAIL: {len(failures)} of {len(CHECKS)} upstream file checks failed.")
         return 1

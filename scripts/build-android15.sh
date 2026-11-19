@@ -133,6 +133,8 @@ DTS_XIAOMI_ROOT="$KERNEL_ROOT/dts/xiaomi-msm8937"
 DTS_VENDOR_ROOT="$KERNEL_ROOT/dts/vendor-legacy"
 [[ -f "$DTS_XIAOMI_ROOT/ugglite.dts" ]] || fail "ugglite DTS missing at kernel manifest project path: $DTS_XIAOMI_ROOT/ugglite.dts"
 [[ -f "$DTS_XIAOMI_ROOT/ulysse/ugglite/ugglite.dtsi" ]] || fail "ugglite device DTS include missing at kernel manifest project path."
+[[ -f "$DTS_XIAOMI_ROOT/ulysse/ugglite/camera.dtsi" ]] || fail "ugglite camera DTS include missing at kernel manifest project path."
+grep -q '#include "camera.dtsi"' "$DTS_XIAOMI_ROOT/ulysse/ugglite/ugglite.dtsi" || fail "ugglite DTS does not include its camera sensor definitions."
 [[ -f "$DTS_VENDOR_ROOT/qcom/msm8917.dtsi" ]] || fail "MSM8917 vendor DTS include missing at kernel manifest project path."
 # Kernel manifest linkfiles expose these projects at the paths consumed by Kbuild.
 [[ -f "$KERNEL_SOURCE/arch/arm64/boot/dts/xiaomi-msm8937/ugglite.dts" ]] || fail "ugglite DTS linkfile missing from kernel source tree."
@@ -149,6 +151,18 @@ done
 cd "$ANDROID_ROOT"
 [[ -f device/xiaomi/Mi8937/lineage_Mi8937_4_19.mk ]] || fail "Mi8937 4.19 product makefile missing."
 [[ -f vendor/xiaomi/Mi8937/Mi8937-vendor.mk ]] || fail "Mi8937 proprietary vendor makefile missing."
+UGGLITE_CAMERA_CONFIG="vendor/xiaomi/Mi8937/proprietary/vendor/etc/overlayfs/ugglite/camera/camera_config.xml"
+[[ -f "$UGGLITE_CAMERA_CONFIG" ]] || fail "ugglite camera configuration XML missing."
+grep -q 'overlayfs/ugglite/camera/camera_config.xml:' vendor/xiaomi/Mi8937/Mi8937-vendor.mk || fail "ugglite camera configuration is not copied by the vendor makefile."
+python3 - "$UGGLITE_CAMERA_CONFIG" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+root = ET.parse(sys.argv[1]).getroot()
+modules = root.findall("CameraModuleConfig")
+if not modules:
+    raise SystemExit("ERROR: ugglite camera XML has no CameraModuleConfig entries")
+print(f"PASS: ugglite camera XML parsed; {len(modules)} camera module entries.")
+PY
 [[ -f vendor/xiaomi/mithorium-common-4.19/BoardConfigVendor.mk ]] || fail "MiThorium 4.19 common vendor makefile missing."
 grep -q 'xiaomi_ugglite_overlay' device/xiaomi/Mi8937/device.mk || fail "ugglite overlay package not found."
 grep -q 'ugglite' device/xiaomi/Mi8937/BoardConfig.mk || fail "ugglite OTA assert not found."

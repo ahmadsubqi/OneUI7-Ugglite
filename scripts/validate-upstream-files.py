@@ -167,6 +167,36 @@ CHECKS = [
         "proprietary/vendor/etc/overlayfs/ugglite/camera/camera_config.xml",
         ["CameraModuleConfig"],
     ),
+    (
+        "Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-4.19",
+        "a15_qpr2/master",
+        "mithorium-common-4.19-vendor.mk",
+        ["vendor/xiaomi/mithorium-common-4.19", "PRODUCT_COPY_FILES +="],
+    ),
+    (
+        "Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-4.19",
+        "a15_qpr2/master",
+        "Android.bp",
+        ["soong_namespace {"],
+    ),
+    (
+        "Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-graphics",
+        "a15_qpr2/master",
+        "mithorium-common-graphics-vendor.mk",
+        ["LA.UM.9.6.3.r1-06200-89xx.0/extract-vendor.mk"],
+    ),
+    (
+        "Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-graphics",
+        "a15_qpr2/master",
+        "LA.UM.9.6.3.r1-06200-89xx.0/extract-vendor.mk",
+        ["libEGL_adreno", "vulkan.adreno"],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "BoardConfig.mk",
+        ["TARGET_KERNEL_CONFIG += \\n    vendor/msm8937-legacy.config"],
+    ),
 ]
 
 def fetch_text(owner_repo, ref, path):

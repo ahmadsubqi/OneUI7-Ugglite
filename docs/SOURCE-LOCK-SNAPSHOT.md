@@ -43,3 +43,16 @@ The Android local manifest also declares additional projects (common graphics ve
 ## Status
 
 This is a partial audit lock snapshot, not a complete repo manifest lockfile. Do not feed this partial list into a build workflow as if it were complete. The next step is to resolve the remaining manifest entries, check the separate Mi8937_4_19 tree relationship, and then generate a complete pinned manifest/lock artifact. No build or device operation is authorized by this document.
+
+## Additional Android manifest revisions resolved in follow-up audit
+
+| Repository | Manifest revision | Resolved commit |
+|---|---|---|
+| Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-graphics | a15_qpr2/master | 84fc1d44483139d6355347a4bc98b172bac6f69b |
+| Mi-Thorium/android_device_xiaomi_land-camera | sairam/a11/master | 6d9a98c2ab3b7e8e87956f79997029e1d4b69bb8 |
+| Mi-Thorium/android_device_xiaomi_mi8937-camera | a11/master | 54d8909022b1244b90189cccd8d792993cb2c643 |
+| Mi-Thorium/android_device_xiaomi_prada-camera | a11/master | bb003d61929ffb7a33a3acd2f0dfbea411fe8c4b |
+| LineageOS/android_hardware_qcom_media | lineage-21.0-caf-msm8953 | 90a808309f461f139161f504e44e341f4f6f2fb6 |
+| LineageOS/android_hardware_qcom_display | lineage-21.0-caf-msm8953 | d0107598e13d1b7df25e97214c195a501b3ec348 |
+
+The LineageOS display-commonsys-intf project did not resolve under the repository name as written in the local manifest; its upstream repository identity/remote mapping needs verification before pinning.

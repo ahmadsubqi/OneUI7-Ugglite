@@ -4,6 +4,10 @@ set -Eeuo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ANDROID_ROOT="${ANDROID_ROOT:-/srv/android15/OneUI7-Ugglite/android}"
 KERNEL_ROOT="${ANDROID_ROOT}/kernel/xiaomi/mithorium-4.19"
+# IMPORTANT: Repo does not support initializing a second client inside an
+# existing Android Repo checkout. Sync the kernel as a sibling client, then
+# move the complete checkout into TARGET_KERNEL_SOURCE.
+KERNEL_SYNC_ROOT="${ANDROID_ROOT%/}/../kernel-sync/mithorium-4.19"
 JOBS="${JOBS:-8}"
 MIN_FREE_GB="${MIN_FREE_GB:-400}"
 MIN_RAM_GB="${MIN_RAM_GB:-64}"
@@ -16,6 +20,7 @@ fail() { echo "ERROR: $*" >&2; exit 1; }
 echo "=== OneUI7-Ugglite Android 15 baseline build ==="
 echo "Android source: $ANDROID_ROOT"
 echo "Kernel source:  $KERNEL_ROOT"
+echo "Kernel sync:    $KERNEL_SYNC_ROOT"
 
 [[ "$(uname -m)" == "x86_64" ]] || fail "Build host must be x86_64."
 [[ -f /etc/os-release ]] || fail "Cannot identify Linux distribution."
@@ -45,12 +50,23 @@ echo "=== Syncing LineageOS 22.2 + Mi-Thorium device/vendor/HAL sources ==="
 repo sync -c --no-clone-bundle -j"$JOBS"
 repo manifest -r -o "$ANDROID_ROOT/pinned-android-manifest.xml"
 
-echo "=== Initializing the separate nested kernel Repo client ==="
-mkdir -p "$KERNEL_ROOT"
-cd "$KERNEL_ROOT"
+echo "=== Preparing separate kernel Repo client OUTSIDE Android source tree ==="
+mkdir -p "$(dirname "$KERNEL_SYNC_ROOT")"
+if [[ -d "$KERNEL_ROOT/.repo" && ! -e "$KERNEL_SYNC_ROOT" ]]; then
+    echo "Moving any previous kernel Repo client out of the Android source tree."
+    mkdir -p "$(dirname "$KERNEL_ROOT")"
+    mv "$KERNEL_ROOT" "$KERNEL_SYNC_ROOT"
+fi
+[[ ! -e "$KERNEL_ROOT" ]] || fail "Kernel destination already exists without a movable Repo client: $KERNEL_ROOT"
+mkdir -p "$KERNEL_SYNC_ROOT"
+cd "$KERNEL_SYNC_ROOT"
 repo init -u https://github.com/Mi-Thorium/kernel_manifest -b mithorium-4.19 --no-clone-bundle
 repo sync -c --no-clone-bundle -j4
 repo manifest -r -o "$ANDROID_ROOT/pinned-kernel-manifest.xml"
+
+echo "=== Installing synced kernel tree at TARGET_KERNEL_SOURCE ==="
+mkdir -p "$(dirname "$KERNEL_ROOT")"
+mv "$KERNEL_SYNC_ROOT" "$KERNEL_ROOT"
 
 KERNEL_SOURCE="$KERNEL_ROOT/kernel"
 [[ -f "$KERNEL_SOURCE/Makefile" ]] || fail "Kernel Makefile missing at expected TARGET_KERNEL_SOURCE: $KERNEL_SOURCE"

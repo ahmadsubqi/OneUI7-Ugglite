@@ -90,6 +90,18 @@ CHECKS = [
         "mithorium.mk",
         ["TARGET_USES_XIAOMI_MITHORIUM_COMMON_TREE := true"],
     ),
+    (
+        "Mi-Thorium/android_hardware_qcom_audio_mithorium",
+        "mithorium/LA.UM.9.6.4.r2-04300-89xx.QSSI13r2.0",
+        "hal/audio_extn/cirrus_playback.c",
+        ["audio_extn_cirrus_calibration_thread(void*)", "audio_extn_cirrus_config_thread(void*)"],
+    ),
+    (
+        "Mi-Thorium/android_hardware_qcom_audio_mithorium",
+        "mithorium/LA.UM.9.6.4.r2-04300-89xx.QSSI13r2.0",
+        "hal/audio_extn/spkr_protection.c",
+        ["spkr_calibration_thread(void*)", "spkr_v_vali_thread(void*)"],
+    ),
     # Kernel config fragments selected by BoardConfigCommon.mk and Mi8937/BoardConfig.mk.
     *[
         ("Mi-Thorium/kernel_msm-4.19", "mithorium/a13/master", f"arch/arm64/configs/{name}", [])

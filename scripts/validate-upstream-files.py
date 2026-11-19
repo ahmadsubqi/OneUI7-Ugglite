@@ -240,6 +240,7 @@ CHECKS = [
             "vendor/feature/no-wlan-driver.config",
             "vendor/xiaomi/msm8937/common.config",
             "vendor/xiaomi/msm8937/mi8937.config",
+            "vendor/xiaomi/msm8937/optional/latest-camera-stack.config",
         ]
     ],
     (

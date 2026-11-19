@@ -149,7 +149,7 @@ CHECKS = [
         "Mi-Thorium/kernel_msm-4.19",
         "mithorium/a13/master",
         "drivers/staging/Makefile",
-        ["obj-$(CONFIG_PRONTO_WLAN) += prima/"],
+        ["obj-$(CONFIG_PRONTO_WLAN)", "prima/"],
     ),
     (
         "Mi-Thorium/kernel_msm-4.19",

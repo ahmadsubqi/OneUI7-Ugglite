@@ -144,7 +144,8 @@ for linked in \
     "$KERNEL_SOURCE/techpack/camera-legacy/Makefile" \
     "$KERNEL_SOURCE/techpack/camera-legacy-m/Makefile" \
     "$KERNEL_SOURCE/techpack/xiaomi-msm8937/Makefile" \
-    "$KERNEL_SOURCE/drivers/staging/prima/Makefile"; do
+    "$KERNEL_SOURCE/drivers/staging/prima/Kconfig" \
+    "$KERNEL_SOURCE/drivers/staging/prima/Kbuild"; do
     [[ -f "$linked" ]] || fail "Kernel manifest techpack/driver linkfile missing: $linked"
 done
 
@@ -166,6 +167,12 @@ PY
 [[ -f vendor/xiaomi/mithorium-common-4.19/BoardConfigVendor.mk ]] || fail "MiThorium 4.19 common vendor makefile missing."
 grep -q 'xiaomi_ugglite_overlay' device/xiaomi/Mi8937/device.mk || fail "ugglite overlay package not found."
 grep -q 'ugglite' device/xiaomi/Mi8937/BoardConfig.mk || fail "ugglite OTA assert not found."
+
+echo "=== Build ugglite kernel and DTB before Android baseline ==="
+mkdir -p "$PROJECT_ROOT/build-output"
+ANDROID_ROOT="$ANDROID_ROOT" KERNEL_SOURCE="$KERNEL_SOURCE" JOBS="$JOBS" \
+    KERNEL_ARTIFACT_DIR="$PROJECT_ROOT/build-output/kernel" \
+    bash "$PROJECT_ROOT/scripts/build-kernel-ugglite.sh"
 
 echo "=== Source lockfiles generated ==="
 ls -lh "$ANDROID_ROOT/pinned-android-manifest.xml" "$ANDROID_ROOT/pinned-kernel-manifest.xml"

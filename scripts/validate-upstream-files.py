@@ -390,6 +390,71 @@ CHECKS = [
             "vendor_xiaomi_prop",
         ],
     ),
+    (
+        "Mi-Thorium/android_device_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "manifest.xml",
+        [
+            '<manifest version="2.0" type="device">',
+            "lineage.hardware.radio.config",
+            "@1.0::IRadioConfig/default",
+        ],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "manifest.xml",
+        [
+            "android.hardware.audio",
+            "@7.0::IDevicesFactory/default",
+            "android.hardware.bluetooth",
+            "android.hardware.sensors",
+            "vendor.qti.hardware.perf",
+            "vendor.qti.hardware.qseecom",
+            "vendor.display.composer",
+        ],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "manifest_k4.19.xml",
+        [
+            '<manifest version="2.0" type="device" target-level="5">',
+            '<kernel target-level="6"/>',
+        ],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "device.mk",
+        [
+            "android.hardware.biometrics.fingerprint@2.1-service.xiaomi_ulysse",
+            "vendor.lineage.touch-service.xiaomi_mi8937",
+            "WifiOverlay_prada",
+            "fstab.qcom_ramdisk",
+            "init.baseband.sh",
+            "init.goodix.sh",
+            "init.xiaomi.device.rc",
+            "libbinder_shim.vendor",
+            "camera.ulysse",
+            "camera.wingtech",
+        ],
+    ),
+    (
+        "Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-4.19",
+        "a15_qpr2/master",
+        "mithorium-common-4.19-vendor.mk",
+        [
+            "vendor.qti.hardware.alarm@1.0",
+            "vendor.qti.hardware.perf@2.2",
+            "vendor.qti.gnss@4.1-service",
+            "android.hardware.bluetooth@1.0-impl-qti",
+            "libQSEEComAPI",
+            "libOmxVpp",
+            "libthermalclient",
+            "vendor/etc/init/init_thermal-engine.rc",
+        ],
+    ),
 ]
 
 def fetch_text(owner_repo, ref, path):

@@ -72,7 +72,8 @@ require_config CONFIG_WCNSS_CORE_PRONTO
 require_config CONFIG_CFG80211
 require_config CONFIG_SND
 require_config CONFIG_SND_SOC
-require_config CONFIG_SND_SOC_SDM450
+grep -q "^CONFIG_SND_SOC_SDM450=y$" "$KERNEL_SOURCE/techpack/audio-legacy/config/sdm450auto.conf" || fail "MSM8937 sdm450 audio auto-config is not enabled."
+grep -q "^CONFIG_SND_SOC_EXT_CODEC_SDM450=y$" "$KERNEL_SOURCE/techpack/audio-legacy/config/sdm450auto.conf" || fail "MSM8937 external codec audio config is not enabled."
 require_config CONFIG_MSMB_CAMERA
 require_config CONFIG_MSMB_CAMERA_LEGACY
 require_config CONFIG_MSMB_CAMERA_LEGACY_M

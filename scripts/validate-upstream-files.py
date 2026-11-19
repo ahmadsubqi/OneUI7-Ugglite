@@ -28,7 +28,8 @@ CHECKS = [
         "Mi-Thorium/android_device_xiaomi_Mi8937",
         "a15_qpr2/master",
         "BoardConfig.mk",
-        ["ugglite", "BoardConfigCommon.mk", "TARGET_USES_MITHORIUM_KERNEL := true"],
+        ["ugglite", "BoardConfigCommon.mk", "TARGET_USES_MITHORIUM_KERNEL := true",
+         "TARGET_KERNEL_CONFIG +=", "vendor/msm8937-legacy.config"],
     ),
     (
         "Mi-Thorium/android_device_xiaomi_Mi8937",
@@ -195,7 +196,7 @@ CHECKS = [
         "Mi-Thorium/android_device_xiaomi_Mi8937",
         "a15_qpr2/master",
         "BoardConfig.mk",
-        ["TARGET_KERNEL_CONFIG += \\n    vendor/msm8937-legacy.config"],
+        ["TARGET_KERNEL_CONFIG +=", "vendor/msm8937-legacy.config"],
     ),
 ]
 

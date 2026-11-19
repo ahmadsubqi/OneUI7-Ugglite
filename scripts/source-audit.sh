@@ -2,9 +2,13 @@
 set -u
 
 sources=(
-  "https://github.com/ancient-devices/device_xiaomi_ulysse.git"
-  "https://github.com/xiaomi-ulysse/android_kernel_xiaomi_msm8937.git"
-  "https://github.com/xiaomi-ulysse/twrp_device_xiaomi_ugglite.git"
+  "https://github.com/Mi-Thorium/android_device_xiaomi_Mi8937"
+  "https://github.com/Mi-Thorium/kernel_msm-4.19"
+  "https://github.com/Mi-Thorium/android_device_xiaomi_mithorium-common"
+  "https://github.com/Mi-Thorium/proprietary_vendor_xiaomi_Mi8937"
+  "https://github.com/Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common"
+  "https://github.com/Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-4.19"
+  "https://github.com/Mi-Thorium/local_manifests"
 )
 
 for url in "${sources[@]}"; do

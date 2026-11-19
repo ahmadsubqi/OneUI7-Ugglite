@@ -411,7 +411,9 @@ CHECKS = [
             "android.hardware.sensors",
             "vendor.qti.hardware.perf",
             "vendor.qti.hardware.qseecom",
-            "vendor.display.composer",
+            "vendor.display.color",
+            "vendor.display.config",
+            "vendor.display.postproc",
         ],
     ),
     (

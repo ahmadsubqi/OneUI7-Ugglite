@@ -56,3 +56,12 @@ This is a partial audit lock snapshot, not a complete repo manifest lockfile. Do
 | LineageOS/android_hardware_qcom_display | lineage-21.0-caf-msm8953 | d0107598e13d1b7df25e97214c195a501b3ec348 |
 
 The LineageOS display-commonsys-intf project did not resolve under the repository name as written in the local manifest; its upstream repository identity/remote mapping needs verification before pinning.
+
+| Mi-Thorium/android_device_xiaomi_MiThoriumSSI | a11/master | d936a1ff95d612275d1584b79dbabb6e45114894 |
+
+## Manifest issues found during follow-up
+
+- The separate repository `Mi-Thorium/android_device_xiaomi_Mi8937_4_19` is declared by the Android local manifest at `device/xiaomi/Mi8937_4_19`, revision `a11/master`. Its GitHub repository metadata reports a very small repository (size 3), and the expected product files were not present at the queried path. The inspected Android 15 product instead inherits `device/xiaomi/Mi8937/device.mk`. Keep this extra checkout recorded but do not treat it as the active product device tree without further evidence.
+- The local manifest requests `lineage-21.0-caf-msm8953` for `LineageOS/android_vendor_qcom_opensource_display-commonsys-intf`. GitHub branch search shows `lineage-21.0` but does not show the requested `lineage-21.0-caf-msm8953` branch. The exact revision therefore appears unresolved and may make repo sync fail. Do not silently substitute `lineage-21.0`; confirm the intended branch with the maintainers or correct the local manifest only after verifying compatibility.
+- The `MiThoriumSSI` project resolves on `a11/master`, not `a15_qpr2/master`; the SHA above is recorded for the actual repository default branch named in its metadata.
+

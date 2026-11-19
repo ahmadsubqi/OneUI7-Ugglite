@@ -82,7 +82,7 @@ apply_local_patch() {
 apply_local_patch "$ANDROID_ROOT/device/xiaomi/Mi8937" "$PROJECT_ROOT/patches/0002-fix-mi8937-product-build-prop-override.patch" "Mi8937 product build-property"
 apply_local_patch "$ANDROID_ROOT/device/xiaomi/mithorium-common" "$PROJECT_ROOT/patches/0003-fix-mithorium-msm8937-media-copy-entry.patch" "MiThorium MSM8937 media copy"
 
-repo manifest -r -o "$ANDROID_ROOT/pinned-android-manifest.xml"
+bash "$PROJECT_ROOT/scripts/lock-synced-sources.sh" "$ANDROID_ROOT" "$PROJECT_ROOT/build-output/source-locks/android15-manifest.xml"
 
 echo "=== Preparing separate kernel Repo client OUTSIDE Android source tree ==="
 mkdir -p "$(dirname "$KERNEL_SYNC_ROOT")"
@@ -96,7 +96,7 @@ mkdir -p "$KERNEL_SYNC_ROOT"
 cd "$KERNEL_SYNC_ROOT"
 repo init -u https://github.com/Mi-Thorium/kernel_manifest -b mithorium-4.19 --no-clone-bundle
 repo sync -c --no-clone-bundle -j4
-repo manifest -r -o "$ANDROID_ROOT/pinned-kernel-manifest.xml"
+bash "$PROJECT_ROOT/scripts/lock-synced-sources.sh" "$KERNEL_SYNC_ROOT" "$PROJECT_ROOT/build-output/source-locks/kernel-4.19-manifest.xml"
 
 echo "=== Installing synced kernel tree at TARGET_KERNEL_SOURCE ==="
 mkdir -p "$(dirname "$KERNEL_ROOT")"
@@ -175,7 +175,7 @@ ANDROID_ROOT="$ANDROID_ROOT" KERNEL_SOURCE="$KERNEL_SOURCE" JOBS="$JOBS" \
     bash "$PROJECT_ROOT/scripts/build-kernel-ugglite.sh"
 
 echo "=== Source lockfiles generated ==="
-ls -lh "$ANDROID_ROOT/pinned-android-manifest.xml" "$ANDROID_ROOT/pinned-kernel-manifest.xml"
+ls -lh "$PROJECT_ROOT/build-output/source-locks/android15-manifest.xml" "$PROJECT_ROOT/build-output/source-locks/kernel-4.19-manifest.xml"
 
 echo "=== Starting Android 15 baseline build ==="
 mkdir -p "$PROJECT_ROOT/build-output"
@@ -189,7 +189,8 @@ OUT_DIR="$ANDROID_ROOT/out/target/product/Mi8937_4_19"
 mkdir -p "$PROJECT_ROOT/build-output"
 find "$OUT_DIR" -maxdepth 1 -type f \( -name '*.zip' -o -name '*.img' -o -name '*.tar' \) -exec cp -v {} "$PROJECT_ROOT/build-output/" \;
 compgen -G "$PROJECT_ROOT/build-output/*.zip" >/dev/null || fail "Build ended without producing a flashable ZIP."
-cp -f "$ANDROID_ROOT/pinned-android-manifest.xml" "$PROJECT_ROOT/build-output/"
-cp -f "$ANDROID_ROOT/pinned-kernel-manifest.xml" "$PROJECT_ROOT/build-output/"
+mkdir -p "$PROJECT_ROOT/build-output/source-locks"
+[[ -s "$PROJECT_ROOT/build-output/source-locks/android15-manifest.xml" ]] || fail "Android 15 immutable source lockfile missing."
+[[ -s "$PROJECT_ROOT/build-output/source-locks/kernel-4.19-manifest.xml" ]] || fail "Kernel immutable source lockfile missing."
 find "$PROJECT_ROOT/build-output" -maxdepth 1 -type f -printf '%f %s bytes\n'
 echo "BUILD_COMPLETE"

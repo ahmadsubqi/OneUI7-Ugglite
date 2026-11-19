@@ -37,6 +37,12 @@ require(any(p.get("path") == "vendor/xiaomi/Mi8937" for p in projects),
         "Mi8937 vendor project is missing")
 require(any(p.get("path") == "device/xiaomi/mithorium-common" for p in projects),
         "MiThorium common device tree is missing")
+require(any(p.get("path") == "hardware/mithorium/display/LA.UM.8.6.2.r1-09500-89xx.0/display" for p in projects),
+        "upstream LA.UM.8.6.2 display HAL project path is missing")
+require(not any(p.get("path") == "device/xiaomi/Mi8937_4_19" for p in projects),
+        "obsolete empty Mi8937_4_19 helper checkout must not be included")
+require(any(p.get("path") == "device/xiaomi/MiThoriumSSI" and p.get("revision") == "a15/master" for p in projects),
+        "MiThoriumSSI must use its verified a15/master branch")
 for project in projects:
     require(bool(project.get("path")), "project without path attribute")
     require(bool(project.get("name")), "project without name attribute")

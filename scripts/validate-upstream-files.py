@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check critical upstream source files and ugglite-specific markers without repo sync."""
 import json
+import re
 import sys
 import xml.etree.ElementTree as ET
 import urllib.error
@@ -532,6 +533,73 @@ def main():
     except (OSError, ET.ParseError, ValueError, urllib.error.URLError) as exc:
         failures.append(f"dependency-to-manifest consistency check failed: {exc}")
         print(f"FAIL dependency-to-manifest consistency: {exc}")
+
+    # Static partition-layout consistency audit (not a substitute for reading
+    # the handset's actual GPT/partition table).
+    try:
+        board = fetch_text(
+            "Mi-Thorium/android_device_xiaomi_Mi8937",
+            "a15_qpr2/master",
+            "BoardConfig.mk",
+        )
+        fstab = fetch_text(
+            "Mi-Thorium/android_device_xiaomi_Mi8937",
+            "a15_qpr2/master",
+            "rootdir/etc/fstab_4_19.qcom",
+        )
+        def make_value(name):
+            match = re.search(rf"^\\s*{re.escape(name)}\\s*:=\\s*(.+?)\\s*$", board, re.M)
+            return match.group(1).strip() if match else None
+
+        ssi = make_value("SSI_PARTITIONS")
+        treble = make_value("TREBLE_PARTITIONS")
+        all_parts = make_value("ALL_PARTITIONS")
+        expected_parts = set((ssi or "").split() + (treble or "").split())
+        declared_parts = set((all_parts or "").split())
+        if not expected_parts or declared_parts != expected_parts:
+            failures.append("BoardConfig partition groups are missing or inconsistent")
+            print(f"FAIL partition groups: SSI={ssi!r}, TREBLE={treble!r}, ALL={all_parts!r}")
+        else:
+            print(f"PASS dynamic partition groups: {', '.join(sorted(expected_parts))}")
+
+        logical_parts = set()
+        for line in fstab.splitlines():
+            fields = line.split()
+            if len(fields) >= 5 and "logical" in fields[4].split(","):
+                logical_parts.add(fields[0])
+        if logical_parts != expected_parts:
+            failures.append(
+                f"fstab logical partitions {sorted(logical_parts)} do not match "
+                f"BoardConfig partitions {sorted(expected_parts)}"
+            )
+            print(f"FAIL fstab logical partition set: {sorted(logical_parts)}")
+        else:
+            print("PASS fstab logical mounts match all five BoardConfig dynamic partitions")
+
+        expected_layout = {
+            "BOARD_SUPER_PARTITION_CUST_DEVICE_SIZE": "536870912",
+            "BOARD_SUPER_PARTITION_SYSTEM_DEVICE_SIZE": "3221225472",
+            "BOARD_MI8937_DYNPART_SIZE": "$(shell expr $(BOARD_SUPER_PARTITION_SIZE) - 4194304 )",
+        }
+        for key, value in expected_layout.items():
+            if make_value(key) != value:
+                failures.append(f"unexpected or missing {key} in BoardConfig")
+                print(f"FAIL {key}: expected {value!r}, got {make_value(key)!r}")
+        for marker in [
+            "/dev/block/by-name/oem /metadata",
+            "/dev/block/by-name/userdata /data",
+            "/dev/block/by-name/boot /boot",
+            "/dev/block/by-name/recovery /recovery",
+            "fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized",
+            "metadata_encryption=aes-256-xts",
+        ]:
+            if marker not in fstab:
+                failures.append(f"missing critical fstab entry or encryption option: {marker}")
+                print(f"FAIL fstab marker: {marker}")
+        print("PASS critical boot/recovery/metadata/userdata and encryption entries present")
+    except (OSError, urllib.error.URLError) as exc:
+        failures.append(f"partition-layout audit fetch failed: {exc}")
+        print(f"FAIL partition-layout audit: {exc}")
 
     if failures:
         print(f"\nFAIL: {len(failures)} of {len(CHECKS)} upstream file checks failed.")

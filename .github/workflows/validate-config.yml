@@ -1,0 +1,31 @@
+name: Validate Build Configuration
+
+on:
+  push:
+    paths:
+      - "manifests/**"
+      - "scripts/**"
+      - ".github/workflows/**"
+  pull_request:
+    paths:
+      - "manifests/**"
+      - "scripts/**"
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Bash syntax
+        run: bash -n scripts/build-android15.sh
+
+      - name: Validate local manifest and build configuration
+        run: python3 scripts/validate-config.py

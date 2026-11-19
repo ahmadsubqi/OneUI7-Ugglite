@@ -52,7 +52,7 @@ CHECKS = [
         "Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-4.19",
         "a15_qpr2/master",
         "BoardConfigVendor.mk",
-        ["include"],
+        ["setup-makefiles.sh"],
     ),
     (
         "Mi-Thorium/kernel_msm-4.19",

@@ -331,6 +331,65 @@ CHECKS = [
         "BoardConfig.mk",
         ["TARGET_KERNEL_CONFIG +=", "vendor/msm8937-legacy.config"],
     ),
+    (
+        "Mi-Thorium/android_device_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "BoardConfig.mk",
+        [
+            "BOARD_USES_METADATA_PARTITION := true",
+            "BOARD_SUPER_PARTITION_BLOCK_DEVICES := cust system",
+            "BOARD_SUPER_PARTITION_CUST_DEVICE_SIZE := 536870912",
+            "BOARD_SUPER_PARTITION_SYSTEM_DEVICE_SIZE := 3221225472",
+            "BOARD_MI8937_DYNPART_PARTITION_LIST := $(ALL_PARTITIONS)",
+            "BOARD_VENDOR_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/vendor",
+            "BOARD_ODM_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/odm",
+            "VENDOR_SECURITY_PATCH := 2017-04-01",
+        ],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "sepolicy/vendor/file_contexts",
+        [
+            "mm-qcamera-daemon",
+            "system_block_device",
+            "metadata_block_device",
+            "sysfs_mi8937_ts",
+        ],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "sepolicy/vendor/property_contexts",
+        [
+            "persist.s5k3p8sp.",
+            "persist.ov16885.",
+            "camera_prop",
+        ],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "sepolicy/vendor/file_contexts",
+        [
+            "wcnss_persist_file",
+            "bt_firmware_file",
+            "sensors_persist_file",
+            "init_xiaomi_exec",
+            "hal_thermal_default_exec",
+        ],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "sepolicy/vendor/property_contexts",
+        [
+            "vendor_tee_listener_prop",
+            "camera_prop",
+            "vendor_wifi_version",
+            "vendor_xiaomi_prop",
+        ],
+    ),
 ]
 
 def fetch_text(owner_repo, ref, path):

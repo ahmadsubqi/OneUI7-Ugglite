@@ -133,6 +133,7 @@ CHECKS = [
             "common/fragments/delete-msm89x7-camera-sensor-mtp.dtsi",
             "ulysse/common/common.dtsi",
             "ulysse/ugglite/ugglite.dtsi",
+            "ulysse/ugglite/camera.dtsi",
         ]
     ],
     *[

@@ -44,6 +44,30 @@ CHECKS = [
         ["TARGET_KERNEL_SOURCE := kernel/xiaomi/mithorium-$(TARGET_KERNEL_VERSION)/kernel"],
     ),
     (
+        "Mi-Thorium/android_device_xiaomi_mithorium-common",
+        "a15_qpr2/master",
+        "BoardConfigCommon.mk",
+        [
+            "BOARD_KERNEL_BASE := 0x80000000",
+            "BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb",
+            "BOARD_KERNEL_PAGESIZE :=  2048",
+            "BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01000000 --tags_offset 0x00000100",
+            "BOARD_FLASH_BLOCK_SIZE := 131072",
+            "TARGET_KERNEL_SOURCE := kernel/xiaomi/mithorium-$(TARGET_KERNEL_VERSION)/kernel",
+        ],
+    ),
+    (
+        "Mi-Thorium/android_device_xiaomi_Mi8937",
+        "a15_qpr2/master",
+        "BoardConfig.mk",
+        [
+            "BOARD_BOOTIMAGE_PARTITION_SIZE := 67108864",
+            "BOARD_RECOVERYIMAGE_PARTITION_SIZE := 67108864",
+            "BOARD_KERNEL_CMDLINE += androidboot.boot_devices=soc/7824900.sdhci",
+            "TARGET_OTA_ASSERT_DEVICE := mi8937,land,santoni,prada,ulysse,ugglite,ugg,rolex,riva,Mi8937,Mi8937_4_19,Mi8937_Ld",
+        ],
+    ),
+    (
         "Mi-Thorium/proprietary_vendor_xiaomi_Mi8937",
         "a15_qpr2/master",
         "Mi8937-vendor.mk",

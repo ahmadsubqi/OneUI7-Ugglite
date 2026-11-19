@@ -149,9 +149,12 @@ require("void *arg __unused" in audio_patch and "spkr_calibration_thread" in aud
         "audio HAL Clang compatibility patch is missing or incomplete")
 require('BuildDesc="land-user 6.0.1 MMB29M V10.2.2.0.MALMIXM release-keys" \\' in product_patch,
         "Mi8937 product build-property patch is missing the required continuation")
-require("media_codecs_8956.xml:$(TARGET_COPY_OUT_VENDOR)" in media_copy_patch and
-        "media_codecs_8956.xml::" not in media_copy_patch,
-        "MiThorium malformed PRODUCT_COPY_FILES entry patch is missing")
+media_copy_added = [line[1:] for line in media_copy_patch.splitlines()
+                      if line.startswith("+") and not line.startswith("+++")]
+require(any("media_codecs_8956.xml:$(TARGET_COPY_OUT_VENDOR)" in line
+            for line in media_copy_added) and
+        not any("media_codecs_8956.xml::" in line for line in media_copy_added),
+        "MiThorium media copy patch must add the corrected destination entry")
 require(audio_patch_path.is_file(), "audio HAL compatibility patch file is missing")
 require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite.dts" in upstream_files_validator and "msm8937-legacy.config" in upstream_files_validator,
         "upstream file validator must check the ugglite product and kernel DTS")

@@ -10,6 +10,7 @@ build_path = ROOT / "scripts/build-android15.sh"
 workflow_path = ROOT / ".github/workflows/build-android15.yml"
 validation_workflow_path = ROOT / ".github/workflows/validate-config.yml"
 refs_validator_path = ROOT / "scripts/validate-refs.py"
+upstream_files_validator_path = ROOT / "scripts/validate-upstream-files.py"
 
 errors = []
 
@@ -85,12 +86,17 @@ require("actions/upload-artifact@" in workflow,
 try:
     validation_workflow = validation_workflow_path.read_text(encoding="utf-8")
     refs_validator = refs_validator_path.read_text(encoding="utf-8")
+    upstream_files_validator = upstream_files_validator_path.read_text(encoding="utf-8")
 except OSError as exc:
     print(f"FAIL: cannot read validation workflow or refs validator: {exc}")
     sys.exit(1)
 
 require("python3 scripts/validate-refs.py" in validation_workflow,
         "lightweight workflow must run upstream branch-reference checks")
+require("python3 scripts/validate-upstream-files.py" in validation_workflow,
+        "lightweight workflow must run critical upstream source-file checks")
+require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite.dts" in upstream_files_validator,
+        "upstream file validator must check the ugglite product and kernel DTS")
 require('"ls-remote"' in refs_validator and '"--heads"' in refs_validator,
         "upstream reference validator must check remote Git refs")
 

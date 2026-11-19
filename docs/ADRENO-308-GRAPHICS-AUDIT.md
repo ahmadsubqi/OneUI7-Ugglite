@@ -135,3 +135,12 @@ The correct ugglite board chain is:
 `ugglite.dts` → `qcom/msm8917.dtsi` → `msm8917-gpu.dtsi`.
 
 The ugglite board DTS has compatible strings `qcom,msm8917-mtp`, `qcom,msm8917`, `qcom,mtp`, and `xiaomi,ugglite`, and board ID `<8 0>`. The parent MSM8917 DTSI overrides the base GPU power table with speed-bin-specific tables, so the final maximum clock must be taken from the effective compiled DTB for the actual board, not copied from the unrelated MSM8937 GPU DTSI or from the generic MSM8917 base table.
+
+
+## 8. Expected ugglite DTB build selection
+
+The Xiaomi MSM8937 DTS repository `Makefile` contains:
+
+`dtb-$(CONFIG_MACH_XIAOMI_UGGLITE) += ugglite.dtb`
+
+The kernel `vendor/xiaomi/msm8937/mi8937.config` fragment enables `CONFIG_MACH_XIAOMI_UGGLITE=y`. Therefore, when this exact DTS repository is linked into the kernel tree and the stated config fragment is actually merged, the build system is configured to emit `ugglite.dtb`. This is stronger than merely finding the DTS source, but the produced DTB still needs to be confirmed in the real kernel build output.

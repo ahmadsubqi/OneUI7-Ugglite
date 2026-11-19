@@ -37,7 +37,7 @@ The Android source manifest does not directly declare the kernel project. The se
 
 The kernel Makefile reports Linux 4.19.325. Its ARM64 `vendor/msm8937-perf_defconfig` exists and enables `CONFIG_ARCH_MSM8937=y`. Relevant MSM8937 platform code and the matching 4.19 DTS/techpack branches are present.
 
-The common BoardConfig constructs `TARGET_KERNEL_SOURCE` as `kernel/xiaomi/mithorium-$(TARGET_KERNEL_VERSION)/kernel`. The kernel manifest itself checks out the main kernel project at path `kernel`; therefore its checkout must be arranged under the expected parent directory. Do not run a second `repo init` inside the Android source tree. The intended non-nested integration procedure must be followed and verified before CI is modified.
+The common BoardConfig constructs `TARGET_KERNEL_SOURCE` as `kernel/xiaomi/mithorium-$(TARGET_KERNEL_VERSION)/kernel`. The kernel manifest itself checks out the main kernel project at path `kernel`. The correct layout is a separate, nested Repo client rooted at `kernel/xiaomi/mithorium-4.19`; its `path="kernel"` project then lands exactly at the expected `TARGET_KERNEL_SOURCE` path `kernel/xiaomi/mithorium-4.19/kernel`. Initialize the kernel manifest from that nested client root, not from the Android source root. The manifest's DTS and techpack linkfile destinations are also relative to that nested root and must be checked after sync.
 
 Community evidence exists for a Mi8937 LineageOS 22.2 / Android 15 build dated 4 November 2026, reporting kernel 4.19.325. This supports the kernel family pairing but does not prove that the current floating Android device/vendor branches and kernel subprojects resolve to the exact same source set.
 

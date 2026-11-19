@@ -11,6 +11,7 @@ workflow_path = ROOT / ".github/workflows/build-android15.yml"
 validation_workflow_path = ROOT / ".github/workflows/validate-config.yml"
 refs_validator_path = ROOT / "scripts/validate-refs.py"
 upstream_files_validator_path = ROOT / "scripts/validate-upstream-files.py"
+kernel_build_path = ROOT / "scripts/build-kernel-ugglite.sh"
 audio_patch_path = ROOT / "patches/0001-audio-extn-name-unused-pthread-parameters.patch"
 product_patch_path = ROOT / "patches/0002-fix-mi8937-product-build-prop-override.patch"
 media_copy_patch_path = ROOT / "patches/0003-fix-mithorium-msm8937-media-copy-entry.patch"
@@ -69,6 +70,7 @@ for needle, label in [
     ("mv \"$KERNEL_SYNC_ROOT\" \"$KERNEL_ROOT\"", "kernel checkout move into expected source path"),
     ("repo manifest -r", "pinned manifest generation"),
     ("mka bacon", "ROM build command"),
+    ('bash "$PROJECT_ROOT/scripts/build-kernel-ugglite.sh"', "kernel and DTB prebuild integration"),
     ("vendor/xiaomi/msm8937/mi8937.config", "device-specific kernel config fragment"),
     ('DTS_XIAOMI_ROOT="$KERNEL_ROOT/dts/xiaomi-msm8937"', "DTS repository path from kernel manifest"),
     ('DTS_VENDOR_ROOT="$KERNEL_ROOT/dts/vendor-legacy"', "vendor legacy DTS repository path"),
@@ -83,7 +85,8 @@ for needle, label in [
     ('"$KERNEL_SOURCE/techpack/audio-legacy/Makefile"', "audio techpack linkfile consumed by Kbuild"),
     ('"$KERNEL_SOURCE/techpack/camera-legacy-m/Makefile"', "alternate camera techpack linkfile consumed by Kbuild"),
     ('"$KERNEL_SOURCE/techpack/xiaomi-msm8937/Makefile"', "Xiaomi MSM8937 techpack linkfile consumed by Kbuild"),
-    ('"$KERNEL_SOURCE/drivers/staging/prima/Makefile"', "prima WLAN driver linkfile consumed by Kbuild"),
+    ('"$KERNEL_SOURCE/drivers/staging/prima/Kconfig"', "prima WLAN Kconfig linkfile"),
+    ('"$KERNEL_SOURCE/drivers/staging/prima/Kbuild"', "prima WLAN Kbuild linkfile"),
     ("vendor/feature/no-camera-stack.config", "recovery kernel config fragment"),
     ("AUDIO_PATCH=", "audio HAL compatibility patch integration"),
     ('git -C "$AUDIO_HAL_ROOT" apply', "audio HAL patch application"),
@@ -113,6 +116,7 @@ try:
     validation_workflow = validation_workflow_path.read_text(encoding="utf-8")
     refs_validator = refs_validator_path.read_text(encoding="utf-8")
     upstream_files_validator = upstream_files_validator_path.read_text(encoding="utf-8")
+    kernel_build = kernel_build_path.read_text(encoding="utf-8")
     audio_patch = audio_patch_path.read_text(encoding="utf-8")
     product_patch = product_patch_path.read_text(encoding="utf-8")
     media_copy_patch = media_copy_patch_path.read_text(encoding="utf-8")
@@ -124,6 +128,8 @@ require("python3 scripts/validate-refs.py" in validation_workflow,
         "lightweight workflow must run upstream branch-reference checks")
 require("python3 scripts/validate-upstream-files.py" in validation_workflow,
         "lightweight workflow must run critical upstream source-file checks")
+require("CONFIG_PRONTO_WLAN=y" in upstream_files_validator and "CONFIG_SND_SOC_SDM450=y" in upstream_files_validator,
+        "upstream file validator must check Pronto WLAN and MSM8937 audio config")
 require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite.dts" in upstream_files_validator and "msm8937-legacy.config" in upstream_files_validator and "cirrus_playback.c" in upstream_files_validator,
         "upstream file validator must check ugglite and the known audio HAL issue")
 require('"TARGET_KERNEL_CONFIG +="' in upstream_files_validator and '"vendor/msm8937-legacy.config"' in upstream_files_validator,
@@ -142,6 +148,19 @@ require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite
         "upstream file validator must check the ugglite product and kernel DTS")
 require('"ls-remote"' in refs_validator and '"--heads"' in refs_validator,
         "upstream reference validator must check remote Git refs")
+
+for needle, label in [
+    ("vendor/common.config", "Pronto WLAN config fragment"),
+    ("vendor/feature/android-12.config", "Android kernel compatibility fragment"),
+    ("vendor/xiaomi/msm8937/mi8937.config", "Mi8937 kernel config fragment"),
+    ("CONFIG_PRONTO_WLAN", "Pronto WLAN enablement check"),
+    ("CONFIG_SND_SOC_SDM450", "MSM8937 audio configuration check"),
+    ("CONFIG_MSMB_CAMERA_LEGACY_M", "alternate camera stack config check"),
+    ("Image.gz-dtb", "kernel image build target"),
+    ("ugglite.dtb", "ugglite DTB output check"),
+]:
+    require(needle in kernel_build, f"kernel build script is missing {label}")
+require(kernel_build_path.is_file(), "standalone ugglite kernel build script is missing")
 
 if errors:
     for error in errors:

@@ -12,6 +12,8 @@ validation_workflow_path = ROOT / ".github/workflows/validate-config.yml"
 refs_validator_path = ROOT / "scripts/validate-refs.py"
 upstream_files_validator_path = ROOT / "scripts/validate-upstream-files.py"
 audio_patch_path = ROOT / "patches/0001-audio-extn-name-unused-pthread-parameters.patch"
+product_patch_path = ROOT / "patches/0002-fix-mi8937-product-build-prop-override.patch"
+media_copy_patch_path = ROOT / "patches/0003-fix-mithorium-msm8937-media-copy-entry.patch"
 
 errors = []
 
@@ -71,6 +73,9 @@ for needle, label in [
     ("vendor/feature/no-camera-stack.config", "recovery kernel config fragment"),
     ("AUDIO_PATCH=", "audio HAL compatibility patch integration"),
     ('git -C "$AUDIO_HAL_ROOT" apply', "audio HAL patch application"),
+    ("apply_local_patch", "idempotent local upstream patch application"),
+    ("0002-fix-mi8937-product-build-prop-override.patch", "Mi8937 product makefile patch"),
+    ("0003-fix-mithorium-msm8937-media-copy-entry.patch", "MiThorium media copy patch"),
 ]:
     require(needle in build, f"build script is missing {label}")
 
@@ -95,6 +100,8 @@ try:
     refs_validator = refs_validator_path.read_text(encoding="utf-8")
     upstream_files_validator = upstream_files_validator_path.read_text(encoding="utf-8")
     audio_patch = audio_patch_path.read_text(encoding="utf-8")
+    product_patch = product_patch_path.read_text(encoding="utf-8")
+    media_copy_patch = media_copy_patch_path.read_text(encoding="utf-8")
 except OSError as exc:
     print(f"FAIL: cannot read validation workflow or refs validator: {exc}")
     sys.exit(1)
@@ -109,6 +116,11 @@ require("AUDIO_PATCH=" in build and 'git -C "$AUDIO_HAL_ROOT" apply' in build,
         "build script must apply the audio HAL compatibility patch")
 require("void *arg __unused" in audio_patch and "spkr_calibration_thread" in audio_patch,
         "audio HAL Clang compatibility patch is missing or incomplete")
+require('BuildDesc="land-user 6.0.1 MMB29M V10.2.2.0.MALMIXM release-keys" \\' in product_patch,
+        "Mi8937 product build-property patch is missing the required continuation")
+require("media_codecs_8956.xml:$(TARGET_COPY_OUT_VENDOR)" in media_copy_patch and
+        "media_codecs_8956.xml::" not in media_copy_patch,
+        "MiThorium malformed PRODUCT_COPY_FILES entry patch is missing")
 require(audio_patch_path.is_file(), "audio HAL compatibility patch file is missing")
 require("lineage_Mi8937_4_19-userdebug" in upstream_files_validator and "ugglite.dts" in upstream_files_validator and "msm8937-legacy.config" in upstream_files_validator,
         "upstream file validator must check the ugglite product and kernel DTS")

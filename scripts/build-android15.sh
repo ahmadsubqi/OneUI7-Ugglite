@@ -175,7 +175,7 @@ ANDROID_ROOT="$ANDROID_ROOT" KERNEL_SOURCE="$KERNEL_SOURCE" JOBS="$JOBS" \
     bash "$PROJECT_ROOT/scripts/build-kernel-ugglite.sh"
 
 echo "=== Source lockfiles generated ==="
-ls -lh "$PROJECT_ROOT/build-output/source-locks/android15-manifest.xml" "$PROJECT_ROOT/build-output/source-locks/kernel-4.19-manifest.xml"
+ls -lh "$PROJECT_ROOT/build-output/source-locks/"*
 
 echo "=== Starting Android 15 baseline build ==="
 mkdir -p "$PROJECT_ROOT/build-output"
@@ -192,5 +192,9 @@ compgen -G "$PROJECT_ROOT/build-output/*.zip" >/dev/null || fail "Build ended wi
 mkdir -p "$PROJECT_ROOT/build-output/source-locks"
 [[ -s "$PROJECT_ROOT/build-output/source-locks/android15-manifest.xml" ]] || fail "Android 15 immutable source lockfile missing."
 [[ -s "$PROJECT_ROOT/build-output/source-locks/kernel-4.19-manifest.xml" ]] || fail "Kernel immutable source lockfile missing."
+for lock in "$PROJECT_ROOT/build-output/source-locks/android15-manifest.xml" "$PROJECT_ROOT/build-output/source-locks/kernel-4.19-manifest.xml"; do
+    [[ -s "$lock.sha256" ]] || fail "Source lock checksum missing: $lock.sha256"
+    (cd "$(dirname "$lock")" && sha256sum -c "$(basename "$lock").sha256") || fail "Source lock checksum mismatch: $lock"
+done
 find "$PROJECT_ROOT/build-output" -maxdepth 1 -type f -printf '%f %s bytes\n'
 echo "BUILD_COMPLETE"

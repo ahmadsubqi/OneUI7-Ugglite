@@ -36,9 +36,13 @@ Standard GitHub-hosted runners are not suitable: their standard Linux runner has
 
 ## Build automation
 
-Workflow: `.github/workflows/build-android15.yml`
+Full build workflow: `.github/workflows/build-android15.yml` (self-hosted runner only).
 
-Script: `scripts/build-android15.sh`
+Lightweight validation workflow: `.github/workflows/validate-config.yml` (GitHub-hosted runner; checks Bash syntax and local manifest/configuration only, not Android compilation).
+
+Validation script: `scripts/validate-config.py`
+
+Build script: `scripts/build-android15.sh`
 
 The script:
 1. Checks Linux x86_64, Ubuntu, RAM and free disk.
@@ -46,9 +50,9 @@ The script:
 3. Syncs the Android source and emits `pinned-android-manifest.xml` using `repo manifest -r`.
 4. Initializes a separate kernel Repo client in the exact nested path expected by BoardConfig.
 5. Syncs the kernel/DTS/techpack source and emits `pinned-kernel-manifest.xml`.
-6. Checks kernel version, MSM8937 defconfig, ugglite DTS, device product makefile and overlay.
+6. Checks kernel version, MSM8937 defconfig, ugglite DTS, device product makefile, ugglite overlay, and the required Mi8937 / MiThorium 4.19 vendor makefiles.
 7. Runs `lunch lineage_Mi8937_4_19-userdebug` and `mka bacon`.
-8. Copies produced ZIP/images and pinned manifests into build artifacts.
+8. Requires a newly produced flashable ZIP, then copies ZIP/images and pinned manifests into build artifacts.
 
 The source branches are resolved to immutable revisions by Repo during sync. The two `repo manifest -r` lockfiles are the reproducibility record for the actual source checkout used in that build.
 

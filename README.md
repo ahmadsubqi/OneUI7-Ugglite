@@ -20,6 +20,15 @@ The device is currently reported by its owner to run a custom LineageOS Android 
 
 GitHub Actions workflow `.github/workflows/source-audit.yml` performs a read-only remote source audit. It does not build Android, download proprietary firmware, or produce a flashable image.
 
+## Reproducible source locks
+
+The full Android 15 build script generates two revision-pinned Repo manifests only after each complete source sync:
+
+- `build-output/source-locks/android15-manifest.xml`
+- `build-output/source-locks/kernel-4.19-manifest.xml`
+
+Each manifest is emitted with `repo manifest -r`, checked so every project revision is a full 40-character commit SHA, and accompanied by a portable SHA-256 checksum file (`.xml.sha256`). The build verifies both checksums before reporting completion. These lockfiles are build artifacts, not pre-generated source snapshots: no final upstream SHA set is claimed until the full sync runs on a suitable build runner.
+
 ## Source policy
 
 Use public device/kernel sources only as research references. Verify repository ownership, target device, branch history, kernel version, license, and compatibility before adopting anything. Proprietary Samsung firmware and blobs must be obtained lawfully by the project owner; do not commit copyrighted firmware or private keys.

@@ -29,3 +29,6 @@ jobs:
 
       - name: Validate local manifest and build configuration
         run: python3 scripts/validate-config.py
+
+      - name: Check upstream Mi-Thorium branch references
+        run: python3 scripts/validate-refs.py

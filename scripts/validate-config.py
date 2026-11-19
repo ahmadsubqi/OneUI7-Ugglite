@@ -82,6 +82,8 @@ require("self-hosted" in workflow and "android-build" in workflow,
         "full build must be restricted to the android-build self-hosted runner")
 require("actions/upload-artifact@" in workflow,
         "build workflow must upload build artifacts")
+require("github.workspace" in workflow and "runner.workspace" not in workflow,
+        "job-level ANDROID_ROOT must use the supported github.workspace context")
 
 try:
     validation_workflow = validation_workflow_path.read_text(encoding="utf-8")

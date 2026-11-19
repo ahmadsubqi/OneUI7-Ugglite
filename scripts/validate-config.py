@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 manifest_path = ROOT / "manifests/mi-thorium-lineage-22.2.xml"
 build_path = ROOT / "scripts/build-android15.sh"
 workflow_path = ROOT / ".github/workflows/build-android15.yml"
+kernel_workflow_path = ROOT / ".github/workflows/kernel-build-ugglite.yml"
 validation_workflow_path = ROOT / ".github/workflows/validate-config.yml"
 refs_validator_path = ROOT / "scripts/validate-refs.py"
 upstream_files_validator_path = ROOT / "scripts/validate-upstream-files.py"
@@ -101,12 +102,20 @@ require(build.find("cd \"$KERNEL_SYNC_ROOT\"") < build.find("repo init -u https:
 
 try:
     workflow = workflow_path.read_text(encoding="utf-8")
+    kernel_workflow = kernel_workflow_path.read_text(encoding="utf-8")
 except OSError as exc:
     print(f"FAIL: cannot read build workflow: {exc}")
     sys.exit(1)
 
 require("self-hosted" in workflow and "android-build" in workflow,
         "full build must be restricted to the android-build self-hosted runner")
+require("ubuntu-latest" in kernel_workflow and "workflow_dispatch" in kernel_workflow,
+        "kernel-only workflow must be runnable on free GitHub-hosted runners")
+require("repo sync -c --depth=1" in kernel_workflow and "JOBS=2" in kernel_workflow,
+        "kernel-only workflow must shallow-sync sources and use conservative parallelism")
+require("kernel-artifacts/*" in kernel_workflow and "actions/upload-artifact@" in kernel_workflow,
+        "kernel-only workflow must upload kernel/DTB artifacts")
+require(kernel_workflow_path.is_file(), "kernel-only GitHub Actions workflow is missing")
 require("actions/upload-artifact@" in workflow,
         "build workflow must upload build artifacts")
 require("github.workspace" in workflow and "runner.workspace" not in workflow,

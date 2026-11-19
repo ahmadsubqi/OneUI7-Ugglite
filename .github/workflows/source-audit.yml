@@ -17,44 +17,49 @@ concurrency:
 
 jobs:
   audit:
-    name: Audit public source references
+    name: Audit MiThorium ugglite sources
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
 
-      - name: Show runner and project metadata
+      - name: Show runner metadata
         run: |
           echo "Project: ${GITHUB_REPOSITORY}"
           echo "Ref: ${GITHUB_REF}"
-          echo "Runner: $(uname -a)"
+          uname -a
           git --version
 
-      - name: Audit candidate remotes (read-only)
+      - name: Check candidate MiThorium repositories
         shell: bash
         run: |
           set -u
           mkdir -p audit
           {
-            echo "# Source audit"
+            echo "# MiThorium source audit"
             echo
             echo "Date (UTC): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             echo "Project ref: ${GITHUB_REF}"
             echo
-            for url in \
-              https://github.com/ancient-devices/device_xiaomi_ulysse.git \
-              https://github.com/xiaomi-ulysse/android_kernel_xiaomi_msm8937.git \
-              https://github.com/xiaomi-ulysse/twrp_device_xiaomi_ugglite.git
-            do
-              echo "## ${url}"
-              if git ls-remote --heads "${url}" 2>&1; then
+            while IFS='|' read -r name url; do
+              [ -n "$name" ] || continue
+              echo "## $name"
+              if git ls-remote --heads "$url"; then
                 echo
               else
-                echo "REMOTE_CHECK_FAILED: verify URL, access, and repository availability."
+                echo "REMOTE_CHECK_FAILED: $url"
                 echo
               fi
-            done
+            done <<'SOURCES'
+          device-tree|https://github.com/Mi-Thorium/android_device_xiaomi_Mi8937.git
+          kernel-4.19|https://github.com/Mi-Thorium/kernel_msm-4.19.git
+          common-device|https://github.com/Mi-Thorium/android_device_xiaomi_mithorium-common.git
+          vendor-device|https://github.com/Mi-Thorium/proprietary_vendor_xiaomi_Mi8937.git
+          vendor-common|https://github.com/Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common.git
+          vendor-common-4.19|https://github.com/Mi-Thorium/proprietary_vendor_xiaomi_mithorium-common-4.19.git
+          local-manifests|https://github.com/Mi-Thorium/local_manifests.git
+          SOURCES
           } | tee audit/source-audit.md
 
       - name: Upload audit report

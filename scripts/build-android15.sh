@@ -64,6 +64,24 @@ fi
 grep -q 'audio_extn_cirrus_calibration_thread(void *arg __unused)' "$AUDIO_HAL_ROOT/hal/audio_extn/cirrus_playback.c" || fail "Audio HAL calibration-thread fix not present."
 grep -q 'spkr_calibration_thread(void *arg __unused)' "$AUDIO_HAL_ROOT/hal/audio_extn/spkr_protection.c" || fail "Audio HAL speaker-thread fix not present."
 
+apply_local_patch() {
+    local repo_root="$1"
+    local patch_file="$2"
+    local label="$3"
+    [[ -d "$repo_root/.git" || -f "$repo_root/.git" ]] || fail "$label repository checkout missing: $repo_root"
+    [[ -f "$patch_file" ]] || fail "$label patch missing: $patch_file"
+    if git -C "$repo_root" apply --reverse --check "$patch_file" >/dev/null 2>&1; then
+        echo "$label patch is already applied."
+    else
+        git -C "$repo_root" apply --check "$patch_file" || fail "$label patch does not apply cleanly; inspect upstream changes."
+        git -C "$repo_root" apply "$patch_file"
+        echo "$label patch applied."
+    fi
+}
+
+apply_local_patch "$ANDROID_ROOT/device/xiaomi/Mi8937" "$PROJECT_ROOT/patches/0002-fix-mi8937-product-build-prop-override.patch" "Mi8937 product build-property"
+apply_local_patch "$ANDROID_ROOT/device/xiaomi/mithorium-common" "$PROJECT_ROOT/patches/0003-fix-mithorium-msm8937-media-copy-entry.patch" "MiThorium MSM8937 media copy"
+
 repo manifest -r -o "$ANDROID_ROOT/pinned-android-manifest.xml"
 
 echo "=== Preparing separate kernel Repo client OUTSIDE Android source tree ==="

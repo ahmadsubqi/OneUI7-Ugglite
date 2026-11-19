@@ -73,8 +73,29 @@ KERNEL_SOURCE="$KERNEL_ROOT/kernel"
 grep -q '^VERSION = 4$' "$KERNEL_SOURCE/Makefile" || fail "Unexpected kernel major version."
 grep -q '^PATCHLEVEL = 19$' "$KERNEL_SOURCE/Makefile" || fail "Unexpected kernel minor version."
 grep -q '^SUBLEVEL = 325$' "$KERNEL_SOURCE/Makefile" || fail "Expected kernel 4.19.325 source not found."
-[[ -f "$KERNEL_SOURCE/arch/arm64/configs/vendor/msm8937-perf_defconfig" ]] || fail "MSM8937 perf defconfig missing."
+CONFIG_ROOT="$KERNEL_SOURCE/arch/arm64/configs"
+for config in \
+    vendor/msm8937-perf_defconfig \
+    vendor/common.config \
+    vendor/debugfs.config \
+    vendor/msm8937-legacy.config \
+    vendor/feature/android-12.config \
+    vendor/feature/compat-vdso.config \
+    vendor/feature/erofs.config \
+    vendor/feature/exfat.config \
+    vendor/feature/kprobes.config \
+    vendor/feature/lmkd.config \
+    vendor/feature/wireguard.config \
+    vendor/feature/ntfs.config \
+    vendor/feature/no-camera-stack.config \
+    vendor/feature/no-wlan-driver.config \
+    vendor/xiaomi/msm8937/common.config \
+    vendor/xiaomi/msm8937/mi8937.config; do
+    [[ -f "$CONFIG_ROOT/$config" ]] || fail "Required kernel config fragment missing: $config"
+done
 [[ -f "$KERNEL_SOURCE/arch/arm64/boot/dts/xiaomi-msm8937/ugglite.dts" ]] || fail "ugglite DTS missing after kernel manifest sync."
+[[ -f "$KERNEL_SOURCE/arch/arm64/boot/dts/xiaomi-msm8937/ulysse/ugglite/ugglite.dtsi" ]] || fail "ugglite device DTS include missing."
+[[ -f "$KERNEL_SOURCE/arch/arm64/boot/dts/vendor-legacy/qcom/msm8917.dtsi" ]] || fail "MSM8917 vendor DTS include missing."
 
 cd "$ANDROID_ROOT"
 [[ -f device/xiaomi/Mi8937/lineage_Mi8937_4_19.mk ]] || fail "Mi8937 4.19 product makefile missing."

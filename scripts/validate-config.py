@@ -53,11 +53,17 @@ except OSError as exc:
 for needle, label in [
     ("lineage-22.2", "LineageOS 22.2 branch"),
     ("lineage_Mi8937_4_19-userdebug", "expected lunch target"),
-    ("kernel/xiaomi/mithorium-4.19", "nested kernel Repo client path"),
+    ("kernel/xiaomi/mithorium-4.19", "expected kernel source destination"),
+    ("KERNEL_SYNC_ROOT=", "separate kernel sync workspace"),
+    ("repo init -u https://github.com/Mi-Thorium/kernel_manifest", "kernel manifest initialization"),
+    ("mv \"$KERNEL_SYNC_ROOT\" \"$KERNEL_ROOT\"", "kernel checkout move into expected source path"),
     ("repo manifest -r", "pinned manifest generation"),
     ("mka bacon", "ROM build command"),
 ]:
     require(needle in build, f"build script is missing {label}")
+
+require(build.find("cd \"$KERNEL_SYNC_ROOT\"") < build.find("repo init -u https://github.com/Mi-Thorium/kernel_manifest"),
+        "kernel Repo init must run from the separate sync workspace, not inside the Android Repo client")
 
 try:
     workflow = workflow_path.read_text(encoding="utf-8")

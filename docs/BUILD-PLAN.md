@@ -12,13 +12,17 @@
 
 Android source root: `$ANDROID_ROOT`
 
-Kernel Repo client root: `$ANDROID_ROOT/kernel/xiaomi/mithorium-4.19`
+Kernel Repo client is synchronized OUTSIDE the Android Repo checkout, then moved to:
 
-Kernel source path expected by `BoardConfigCommon.mk`:
+`$ANDROID_ROOT/kernel/xiaomi/mithorium-4.19`
+
+The kernel source path expected by `BoardConfigCommon.mk` is:
 
 `kernel/xiaomi/mithorium-4.19/kernel`
 
-The kernel is intentionally managed by a **separate nested Repo client**. Run the kernel manifest initialization from `kernel/xiaomi/mithorium-4.19`, not from the Android root. The kernel manifest's project path `kernel` then resolves exactly to the source path expected by `TARGET_KERNEL_SOURCE`. Its DTS and techpack linkfiles are also relative to this nested Repo client root.
+**Do not run `repo init` inside the Android source checkout to create a second Repo client.** The build script uses a sibling directory `../kernel-sync/mithorium-4.19`, initializes and syncs the kernel manifest there, writes its pinned manifest, and only then moves the complete Repo checkout to the expected `TARGET_KERNEL_SOURCE` path. On a later run, it moves the existing kernel Repo checkout back to the sibling sync directory before updating it. This preserves the Android source root's own `.repo` metadata.
+
+The kernel manifest's project path `kernel` resolves to the source directory above. DTS and techpack linkfiles are relative to the separate kernel Repo client root and remain valid when the entire client directory is moved.
 
 ## Device-tree observations
 
@@ -48,8 +52,8 @@ The script:
 1. Checks Linux x86_64, Ubuntu, RAM and free disk.
 2. Initializes LineageOS 22.2 and installs the project's Mi-Thorium local manifest.
 3. Syncs the Android source and emits `pinned-android-manifest.xml` using `repo manifest -r`.
-4. Initializes a separate kernel Repo client in the exact nested path expected by BoardConfig.
-5. Syncs the kernel/DTS/techpack source and emits `pinned-kernel-manifest.xml`.
+4. Initializes a separate kernel Repo client in a sibling directory OUTSIDE the Android source checkout.
+5. Syncs the kernel/DTS/techpack source, emits `pinned-kernel-manifest.xml`, and moves the complete kernel Repo checkout into the exact nested source path expected by BoardConfig.
 6. Checks kernel version, MSM8937 defconfig, ugglite DTS, device product makefile, ugglite overlay, and the required Mi8937 / MiThorium 4.19 vendor makefiles.
 7. Runs `lunch lineage_Mi8937_4_19-userdebug` and `mka bacon`.
 8. Requires a newly produced flashable ZIP, then copies ZIP/images and pinned manifests into build artifacts.

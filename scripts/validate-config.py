@@ -69,7 +69,7 @@ for needle, label in [
     ("KERNEL_SYNC_ROOT=", "separate kernel sync workspace"),
     ("repo init -u https://github.com/Mi-Thorium/kernel_manifest", "kernel manifest initialization"),
     ("mv \"$KERNEL_SYNC_ROOT\" \"$KERNEL_ROOT\"", "kernel checkout move into expected source path"),
-    ("repo manifest -r", "pinned manifest generation"),
+    ("lock-synced-sources.sh", "immutable pinned manifest generation"),
     ("mka bacon", "ROM build command"),
     ('bash "$PROJECT_ROOT/scripts/build-kernel-ugglite.sh"', "kernel and DTB prebuild integration"),
     ("vendor/xiaomi/msm8937/mi8937.config", "device-specific kernel config fragment"),

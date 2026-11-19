@@ -42,6 +42,7 @@ jobs:
           path: |
             build-output/*
             build-output/kernel/*
+            build-output/source-locks/*
             build-logs/*
           if-no-files-found: error
           compression-level: 0

@@ -1,0 +1,56 @@
+name: Android 15 Baseline Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      jobs:
+        description: "Parallel build jobs (use 8 on a 64 GiB runner)"
+        required: false
+        default: "8"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ugglite-android15-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Requires a configured Linux x86_64 self-hosted runner with >=64 GiB RAM
+    # and >=400 GiB free SSD. Standard GitHub-hosted runners are insufficient.
+    runs-on: [self-hosted, Linux, X64, android-build]
+    timeout-minutes: 360
+    env:
+      ANDROID_ROOT: /srv/android15/OneUI7-Ugglite/android
+      JOBS: ${{ inputs.jobs }}
+    steps:
+      - name: Checkout build configuration
+        uses: actions/checkout@v4
+
+      - name: Run source sync, source checks and baseline build
+        shell: bash
+        run: |
+          chmod +x scripts/build-android15.sh
+          ./scripts/build-android15.sh
+
+      - name: Upload ROM and pinned manifests
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugglite-android15-baseline
+          path: |
+            build-output/*
+            build-logs/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ugglite-android15-build-logs
+          path: build-logs/*
+          if-no-files-found: warn
+          retention-days: 14
